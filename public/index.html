@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Tasks</title>
+  </head>
+  <body>
+    <ul id="task-list"></ul>
+    <script>
+      window.AUTH_TOKEN = __AUTH_TOKEN__;
+    </script>
+    <script src="/js/taskList.js"></script>
+    <script>
+      fetch('/api/tasks', { headers: { Authorization: 'Bearer ' + window.AUTH_TOKEN } })
+        .then((res) => res.json())
+        .then((tasks) => {
+          mount(document.getElementById('task-list'), tasks);
+        });
+    </script>
+  </body>
+</html>
