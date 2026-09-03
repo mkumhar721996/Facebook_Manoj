@@ -1,5 +1,6 @@
 const http = require('http');
 const app = require('../../src/app');
+const auth = require('../../src/lib/auth');
 
 function startServer() {
   return new Promise((resolve) => {
@@ -15,4 +16,8 @@ function stopServer(server) {
   return new Promise((resolve) => server.close(resolve));
 }
 
-module.exports = { startServer, stopServer };
+function authHeaders(userId) {
+  return { Authorization: `Bearer ${auth.sign(userId)}` };
+}
+
+module.exports = { startServer, stopServer, authHeaders };

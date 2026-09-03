@@ -1,5 +1,6 @@
 const { URL } = require('url');
 const tasksRoutes = require('./routes/tasks');
+const auth = require('./lib/auth');
 
 function readBody(req) {
   return new Promise((resolve, reject) => {
@@ -27,10 +28,16 @@ function sendJson(res, status, payload) {
   res.end(JSON.stringify(payload));
 }
 
+function getBearerToken(req) {
+  const header = req.headers['authorization'];
+  if (typeof header !== 'string' || !header.startsWith('Bearer ')) return null;
+  return header.slice('Bearer '.length).trim();
+}
+
 async function app(req, res) {
-  const userId = req.headers['x-user-id'];
+  const userId = auth.verify(getBearerToken(req));
   if (!userId) {
-    sendJson(res, 401, { errors: [{ field: 'auth', message: 'x-user-id header is required.' }] });
+    sendJson(res, 401, { errors: [{ field: 'auth', message: 'A valid Authorization bearer token is required.' }] });
     return;
   }
 
@@ -38,7 +45,13 @@ async function app(req, res) {
 
   try {
     if (pathname === '/tasks' && req.method === 'POST') {
-      const body = await readBody(req);
+      let body;
+      try {
+        body = await readBody(req);
+      } catch (err) {
+        sendJson(res, 400, { errors: [{ field: 'body', message: 'Invalid JSON body.' }] });
+        return;
+      }
       const result = tasksRoutes.createTask(userId, body);
       sendJson(res, result.status, result.body);
       return;
@@ -52,7 +65,13 @@ async function app(req, res) {
 
     const idMatch = /^\/tasks\/([^/]+)$/.exec(pathname);
     if (idMatch && req.method === 'PUT') {
-      const body = await readBody(req);
+      let body;
+      try {
+        body = await readBody(req);
+      } catch (err) {
+        sendJson(res, 400, { errors: [{ field: 'body', message: 'Invalid JSON body.' }] });
+        return;
+      }
       const result = tasksRoutes.updateTask(userId, idMatch[1], body);
       sendJson(res, result.status, result.body);
       return;
@@ -60,7 +79,8 @@ async function app(req, res) {
 
     sendJson(res, 404, { errors: [{ field: 'route', message: 'Not found.' }] });
   } catch (err) {
-    sendJson(res, 400, { errors: [{ field: 'body', message: 'Invalid JSON body.' }] });
+    console.error('Unhandled error while processing request:', err);
+    sendJson(res, 500, { errors: [{ field: 'server', message: 'Internal server error.' }] });
   }
 }
 
