@@ -2,13 +2,28 @@ const http = require('http');
 const session = require('./auth/session');
 const { handleDashboardRequest } = require('./dashboard/dashboardRoute');
 
+const MAX_BODY_SIZE = 1024 * 1024; // 1MB
+
+class PayloadTooLargeError extends Error {}
+
 function readJsonBody(req) {
   return new Promise((resolve, reject) => {
     let raw = '';
+    let rejected = false;
     req.on('data', (chunk) => {
+      if (rejected) {
+        return;
+      }
       raw += chunk;
+      if (raw.length > MAX_BODY_SIZE) {
+        rejected = true;
+        reject(new PayloadTooLargeError());
+      }
     });
     req.on('end', () => {
+      if (rejected) {
+        return;
+      }
       try {
         resolve(raw ? JSON.parse(raw) : {});
       } catch (err) {
@@ -27,9 +42,14 @@ function createApp() {
       let body;
       try {
         body = await readJsonBody(req);
-      } catch {
-        res.writeHead(400, { 'Content-Type': 'text/plain' });
-        res.end('Invalid request body');
+      } catch (err) {
+        if (err instanceof PayloadTooLargeError) {
+          res.writeHead(413, { 'Content-Type': 'text/plain' });
+          res.end('Payload too large');
+        } else {
+          res.writeHead(400, { 'Content-Type': 'text/plain' });
+          res.end('Invalid request body');
+        }
         return;
       }
       const { userId, password } = body;

@@ -13,16 +13,27 @@ function isUpcoming(t, today, windowEnd) {
 function buildDashboardSummary(tasks, today) {
   const windowEnd = toDateOnly(addDays(new Date(`${today}T00:00:00.000Z`), UPCOMING_WINDOW_DAYS));
 
-  const totalCount = tasks.length;
-  const completedCount = tasks.filter((t) => t.completed).length;
-  const pendingCount = tasks.filter((t) => !t.completed).length;
-  const overdueCount = tasks.filter((t) => isOverdue(t, today)).length;
+  let completedCount = 0;
+  let pendingCount = 0;
+  let overdueCount = 0;
+  const upcoming = [];
 
-  const upcoming = tasks
-    .filter((t) => isUpcoming(t, today, windowEnd))
-    .sort((a, b) => (a.dueDate < b.dueDate ? -1 : a.dueDate > b.dueDate ? 1 : 0));
+  for (const t of tasks) {
+    if (t.completed) {
+      completedCount += 1;
+      continue;
+    }
+    pendingCount += 1;
+    if (isOverdue(t, today)) {
+      overdueCount += 1;
+    } else if (isUpcoming(t, today, windowEnd)) {
+      upcoming.push(t);
+    }
+  }
 
-  return { totalCount, completedCount, pendingCount, overdueCount, upcoming };
+  upcoming.sort((a, b) => (a.dueDate < b.dueDate ? -1 : a.dueDate > b.dueDate ? 1 : 0));
+
+  return { totalCount: tasks.length, completedCount, pendingCount, overdueCount, upcoming };
 }
 
 module.exports = { buildDashboardSummary };

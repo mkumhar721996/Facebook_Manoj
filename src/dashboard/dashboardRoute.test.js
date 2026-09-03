@@ -152,3 +152,15 @@ test('security: rejects login with an incorrect password and issues no session',
     assert.equal(cookie, null);
   });
 });
+
+test('security: rejects an oversized login body instead of buffering it unbounded', async () => {
+  await withServer(async (base) => {
+    const oversizedBody = JSON.stringify({ userId: 'a'.repeat(2 * 1024 * 1024), password: 'x' });
+    const res = await fetch(`${base}/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: oversizedBody,
+    });
+    assert.equal(res.status, 413);
+  });
+});

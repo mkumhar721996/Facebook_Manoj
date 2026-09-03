@@ -44,3 +44,35 @@ test('rejects when there is no session cookie at all', () => {
 
   assert.equal(session.resolveUserId(req), null);
 });
+
+test('verifyCredentials returns false for a userId that does not exist', () => {
+  assert.equal(session.verifyCredentials('nobody', 'whatever'), false);
+});
+
+test('verifyCredentials returns false for an existing user with the wrong password', () => {
+  store.addUser({ id: 'alice', password: 'correct-password' });
+
+  assert.equal(session.verifyCredentials('alice', 'wrong-password'), false);
+});
+
+test('verifyCredentials returns true for an existing user with the correct password', () => {
+  store.addUser({ id: 'alice', password: 'correct-password' });
+
+  assert.equal(session.verifyCredentials('alice', 'correct-password'), true);
+});
+
+test('security: verifyCredentials takes comparable time for an unknown user as for a known one, preventing enumeration', () => {
+  store.addUser({ id: 'alice', password: 'correct-password' });
+
+  const timeOf = (fn) => {
+    const start = process.hrtime.bigint();
+    fn();
+    return Number(process.hrtime.bigint() - start);
+  };
+
+  const knownUserTime = timeOf(() => session.verifyCredentials('alice', 'wrong-password'));
+  const unknownUserTime = timeOf(() => session.verifyCredentials('nobody', 'wrong-password'));
+
+  const ratio = Math.max(knownUserTime, unknownUserTime) / Math.min(knownUserTime, unknownUserTime);
+  assert.ok(ratio < 3, `expected comparable timing, got ratio ${ratio}`);
+});

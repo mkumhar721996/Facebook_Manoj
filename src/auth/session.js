@@ -69,12 +69,18 @@ function resolveUserId(req) {
   return userId;
 }
 
+// Dummy salt/hash used when the user doesn't exist, so verifyPassword's
+// scryptSync cost is paid on every login attempt and response time can't
+// be used to enumerate valid user ids.
+const DUMMY_SALT = crypto.randomBytes(16).toString('hex');
+const DUMMY_HASH = crypto.randomBytes(64).toString('hex');
+
 function verifyCredentials(userId, password) {
   const user = store.getUser(userId);
-  if (!user || !user.passwordSalt || !user.passwordHash) {
-    return false;
-  }
-  return verifyPassword(password, user.passwordSalt, user.passwordHash);
+  const salt = user?.passwordSalt || DUMMY_SALT;
+  const hash = user?.passwordHash || DUMMY_HASH;
+  const isPasswordValid = verifyPassword(password, salt, hash);
+  return Boolean(user && user.passwordSalt && user.passwordHash && isPasswordValid);
 }
 
 module.exports = { createSessionCookie, resolveUserId, verifyCredentials, COOKIE_NAME };
