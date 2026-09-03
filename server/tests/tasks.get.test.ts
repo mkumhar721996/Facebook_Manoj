@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { startTestServer } from "./testServer.ts";
+import { authHeader, startTestServer } from "./testServer.ts";
 import type { Task } from "../src/models/task.ts";
 
 function makeTask(overrides: Partial<Task>): Task {
@@ -35,7 +35,7 @@ test("AC1: GET /api/tasks defaults to dueDate ascending, 10 per page", async () 
 
   try {
     const response = await fetch(`${server.baseUrl}/api/tasks`, {
-      headers: { "x-user-id": "userA" },
+      headers: authHeader("userA"),
     });
     const body = await response.json();
 
@@ -80,7 +80,7 @@ for (const { sortBy, order } of SORT_CASES) {
     try {
       const response = await fetch(
         `${server.baseUrl}/api/tasks?sortBy=${sortBy}&order=${order}`,
-        { headers: { "x-user-id": "userA" } }
+        { headers: authHeader("userA") }
       );
       const body = await response.json();
 
@@ -108,7 +108,7 @@ test("AC2: GET /api/tasks?sortBy=notAField falls back to default sort", async ()
 
   try {
     const response = await fetch(`${server.baseUrl}/api/tasks?sortBy=notAField`, {
-      headers: { "x-user-id": "userA" },
+      headers: authHeader("userA"),
     });
     const body = await response.json();
 
@@ -124,7 +124,7 @@ test("AC4: GET /api/tasks with zero tasks returns empty list", async () => {
 
   try {
     const response = await fetch(`${server.baseUrl}/api/tasks`, {
-      headers: { "x-user-id": "userA" },
+      headers: authHeader("userA"),
     });
     const body = await response.json();
 
@@ -146,7 +146,7 @@ test("AC5: GET /api/tasks only returns tasks belonging to the requesting user", 
 
   try {
     const response = await fetch(`${server.baseUrl}/api/tasks`, {
-      headers: { "x-user-id": "userA" },
+      headers: authHeader("userA"),
     });
     const body = await response.json();
 
@@ -166,7 +166,7 @@ test("AC6: GET /api/tasks with exactly 10 tasks returns a single full page", asy
 
   try {
     const response = await fetch(`${server.baseUrl}/api/tasks`, {
-      headers: { "x-user-id": "userA" },
+      headers: authHeader("userA"),
     });
     const body = await response.json();
 
@@ -187,7 +187,7 @@ test("AC7: GET /api/tasks with 11 tasks splits across two pages", async () => {
   try {
     const page1 = await (
       await fetch(`${server.baseUrl}/api/tasks`, {
-        headers: { "x-user-id": "userA" },
+        headers: authHeader("userA"),
       })
     ).json();
     assert.equal(page1.tasks.length, 10);
@@ -195,7 +195,7 @@ test("AC7: GET /api/tasks with 11 tasks splits across two pages", async () => {
 
     const page2 = await (
       await fetch(`${server.baseUrl}/api/tasks?page=2`, {
-        headers: { "x-user-id": "userA" },
+        headers: authHeader("userA"),
       })
     ).json();
     assert.equal(page2.tasks.length, 1);

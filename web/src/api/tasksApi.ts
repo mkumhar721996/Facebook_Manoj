@@ -1,4 +1,5 @@
 import type { Sort, TaskListResult } from "../models/task.ts";
+import { createSignedToken } from "../../../shared/auth/signedToken.ts";
 
 export interface FetchTasksOptions {
   sortBy?: Sort["sortBy"];
@@ -9,6 +10,7 @@ export interface FetchTasksOptions {
 export async function fetchTasks(
   apiBaseUrl: string,
   userId: string,
+  internalApiSecret: string,
   options: FetchTasksOptions,
   fetchImpl: typeof fetch = fetch
 ): Promise<TaskListResult> {
@@ -19,7 +21,7 @@ export async function fetchTasks(
   });
 
   const response = await fetchImpl(`${apiBaseUrl}/api/tasks?${params.toString()}`, {
-    headers: { "x-user-id": userId },
+    headers: { "x-user-token": createSignedToken(userId, internalApiSecret) },
   });
 
   return response.json();

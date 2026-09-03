@@ -7,6 +7,7 @@ import { verifySession } from "./session.ts";
 export function createWebServer(
   apiBaseUrl: string,
   sessionSecret: string,
+  internalApiSecret: string,
   fetchImpl: typeof fetch = fetch
 ): Server {
   return http.createServer(async (req, res) => {
@@ -26,8 +27,15 @@ export function createWebServer(
 
       let result;
       try {
-        result = await fetchTasks(apiBaseUrl, userId, { ...sort, page }, fetchImpl);
-      } catch {
+        result = await fetchTasks(
+          apiBaseUrl,
+          userId,
+          internalApiSecret,
+          { ...sort, page },
+          fetchImpl
+        );
+      } catch (err) {
+        console.error("Failed to fetch tasks:", err);
         res.writeHead(500, { "Content-Type": "text/plain" });
         res.end("Internal server error");
         return;

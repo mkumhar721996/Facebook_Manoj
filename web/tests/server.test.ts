@@ -8,6 +8,7 @@ import { createWebServer } from "../src/server.ts";
 import { createSessionCookie } from "../src/session.ts";
 
 const TEST_SESSION_SECRET = "test-session-secret";
+const TEST_INTERNAL_API_SECRET = "test-internal-api-secret";
 
 function makeTasks(count: number, userId = "userA"): Task[] {
   return Array.from({ length: count }, (_, i) => ({
@@ -35,9 +36,9 @@ function close(server: Server): Promise<void> {
 }
 
 async function startStack(tasks: Task[]) {
-  const apiServer = createApp(new InMemoryTaskRepository(tasks));
+  const apiServer = createApp(new InMemoryTaskRepository(tasks), TEST_INTERNAL_API_SECRET);
   const apiBaseUrl = await listen(apiServer);
-  const webServer = createWebServer(apiBaseUrl, TEST_SESSION_SECRET);
+  const webServer = createWebServer(apiBaseUrl, TEST_SESSION_SECRET, TEST_INTERNAL_API_SECRET);
   const webBaseUrl = await listen(webServer);
   return {
     webBaseUrl,
@@ -122,6 +123,7 @@ test("review: GET /tasks returns 500 instead of crashing when the API call fails
   const webServer = createWebServer(
     "http://api.invalid",
     TEST_SESSION_SECRET,
+    TEST_INTERNAL_API_SECRET,
     failingFetch as typeof fetch
   );
   const webBaseUrl = await listen(webServer);

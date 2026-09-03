@@ -10,7 +10,14 @@ if (!sessionSecret) {
   throw new Error("SESSION_SECRET must be set so session cookies can be signed and verified");
 }
 
-const server = createWebServer(apiBaseUrl, sessionSecret);
+const internalApiSecret = process.env.INTERNAL_API_SECRET;
+if (!internalApiSecret) {
+  throw new Error(
+    "INTERNAL_API_SECRET must be set so requests to the API can be authenticated"
+  );
+}
+
+const server = createWebServer(apiBaseUrl, sessionSecret, internalApiSecret);
 
 server.listen(port, () => {
   console.log(`Web server listening on port ${port}`);

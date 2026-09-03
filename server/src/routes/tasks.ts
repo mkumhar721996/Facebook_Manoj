@@ -6,9 +6,10 @@ export function handleGetTasks(
   req: IncomingMessage,
   res: ServerResponse,
   repository: TaskRepository,
-  query: URLSearchParams
+  query: URLSearchParams,
+  internalApiSecret: string
 ): void {
-  const userId = requireAuth(req);
+  const userId = requireAuth(req, internalApiSecret);
   if (!userId) {
     res.writeHead(401, { "Content-Type": "application/json" });
     res.end(JSON.stringify({ error: "Unauthorized" }));

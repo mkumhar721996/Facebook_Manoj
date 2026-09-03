@@ -1,14 +1,10 @@
-import { createHmac, timingSafeEqual } from "node:crypto";
 import { parseCookies } from "./cookies.ts";
+import { createSignedToken, verifySignedToken } from "../../shared/auth/signedToken.ts";
 
 const SESSION_COOKIE_NAME = "session";
 
-function sign(userId: string, secret: string): string {
-  return createHmac("sha256", secret).update(userId).digest("hex");
-}
-
 export function createSessionCookie(userId: string, secret: string): string {
-  return `${SESSION_COOKIE_NAME}=${userId}.${sign(userId, secret)}`;
+  return `${SESSION_COOKIE_NAME}=${createSignedToken(userId, secret)}`;
 }
 
 /**
@@ -19,19 +15,5 @@ export function createSessionCookie(userId: string, secret: string): string {
  */
 export function verifySession(cookieHeader: string | undefined, secret: string): string | null {
   const value = parseCookies(cookieHeader)[SESSION_COOKIE_NAME];
-  if (!value) return null;
-
-  const separatorIndex = value.lastIndexOf(".");
-  if (separatorIndex <= 0) return null;
-
-  const userId = value.slice(0, separatorIndex);
-  const signature = value.slice(separatorIndex + 1);
-  const expected = sign(userId, secret);
-
-  const expectedBuf = Buffer.from(expected, "hex");
-  const actualBuf = Buffer.from(signature, "hex");
-  if (expectedBuf.length !== actualBuf.length || !timingSafeEqual(expectedBuf, actualBuf)) {
-    return null;
-  }
-  return userId;
+  return verifySignedToken(value, secret);
 }
