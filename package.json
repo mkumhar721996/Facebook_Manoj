@@ -1,0 +1,13 @@
+{
+  "name": "facebook-manoj",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Password reset flow",
+  "type": "module",
+  "engines": {
+    "node": ">=22.6.0"
+  },
+  "scripts": {
+    "test": "node --experimental-strip-types --test \"tests/**/*.test.ts\""
+  }
+}
