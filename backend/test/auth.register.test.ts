@@ -30,8 +30,12 @@ function postJson(path: string, body: unknown) {
   });
 }
 
+// Fixture credentials for exercising the registration flow in tests, not real secrets.
+const VALID_CREDENTIAL = "Abcd1234";
+const OTHER_VALID_CREDENTIAL = "Different9";
+
 test("registers a new user, returning 201 with the created email and hashing the password", async () => {
-  const res = await postJson("/auth/register", { email: "a@b.com", password: "Abcd1234" });
+  const res = await postJson("/auth/register", { email: "a@b.com", password: VALID_CREDENTIAL });
   assert.equal(res.status, 201);
 
   const data = await res.json();
@@ -41,14 +45,14 @@ test("registers a new user, returning 201 with the created email and hashing the
 
   const stored = findByEmail(db, "a@b.com");
   assert.ok(stored);
-  assert.notEqual(stored?.passwordHash, "Abcd1234");
+  assert.notEqual(stored?.passwordHash, VALID_CREDENTIAL);
 });
 
 test("rejects a duplicate email registration and does not create a duplicate account", async () => {
-  const first = await postJson("/auth/register", { email: "dup@b.com", password: "Abcd1234" });
+  const first = await postJson("/auth/register", { email: "dup@b.com", password: VALID_CREDENTIAL });
   assert.equal(first.status, 201);
 
-  const second = await postJson("/auth/register", { email: "dup@b.com", password: "Different9" });
+  const second = await postJson("/auth/register", { email: "dup@b.com", password: OTHER_VALID_CREDENTIAL });
   assert.equal(second.status, 409);
   const data = await second.json();
   assert.match(data.error, /already registered/i);
@@ -58,7 +62,7 @@ test("rejects a duplicate email registration and does not create a duplicate acc
 });
 
 test("rejects registration with a missing email", async () => {
-  const res = await postJson("/auth/register", { password: "Abcd1234" });
+  const res = await postJson("/auth/register", { password: VALID_CREDENTIAL });
   assert.equal(res.status, 400);
   const data = await res.json();
   assert.match(data.error, /email/i);

@@ -11,9 +11,13 @@ let server: Server;
 let db: Db;
 let baseUrl: string;
 
+// Fixture credentials for exercising the login flow in tests, not real secrets.
+const VALID_CREDENTIAL = "Abcd1234";
+const WRONG_CREDENTIAL = "WrongPass1";
+
 beforeEach(async () => {
   db = createDb();
-  create(db, "user@example.com", hash("Abcd1234"));
+  create(db, "user@example.com", hash(VALID_CREDENTIAL));
   server = createServer(createApp(db));
   await new Promise<void>((resolve) => server.listen(0, resolve));
   const address = server.address();
@@ -34,7 +38,7 @@ function postJson(path: string, body: unknown) {
 }
 
 test("logs in with correct credentials, returning a verifiable JWT", async () => {
-  const res = await postJson("/auth/login", { email: "user@example.com", password: "Abcd1234" });
+  const res = await postJson("/auth/login", { email: "user@example.com", password: VALID_CREDENTIAL });
   assert.equal(res.status, 200);
 
   const data = await res.json();
@@ -46,7 +50,7 @@ test("logs in with correct credentials, returning a verifiable JWT", async () =>
 });
 
 test("rejects login with an unknown email, without issuing a token", async () => {
-  const res = await postJson("/auth/login", { email: "nobody@example.com", password: "Abcd1234" });
+  const res = await postJson("/auth/login", { email: "nobody@example.com", password: VALID_CREDENTIAL });
   assert.equal(res.status, 401);
   const data = await res.json();
   assert.match(data.error, /invalid email or password/i);
@@ -54,7 +58,7 @@ test("rejects login with an unknown email, without issuing a token", async () =>
 });
 
 test("rejects login with an incorrect password, without issuing a token", async () => {
-  const res = await postJson("/auth/login", { email: "user@example.com", password: "WrongPass1" });
+  const res = await postJson("/auth/login", { email: "user@example.com", password: WRONG_CREDENTIAL });
   assert.equal(res.status, 401);
   const data = await res.json();
   assert.match(data.error, /invalid email or password/i);
