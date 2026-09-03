@@ -19,19 +19,30 @@ async function withServer(fn) {
   }
 }
 
+async function loginAs(base, userId, password) {
+  const res = await fetch(`${base}/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ userId, password }),
+  });
+  const setCookie = res.headers.get('set-cookie');
+  return { status: res.status, cookie: setCookie ? setCookie.split(';')[0] : null };
+}
+
 test.beforeEach(() => {
   store.reset();
 });
 
 test('AC1: dashboard page renders the four summary counts for the logged-in user', async () => {
-  store.addUser({ id: 'alice' });
+  store.addUser({ id: 'alice', password: 'correct-horse-battery-staple' });
   store.addTask({ id: 't1', userId: 'alice', title: 'Done', completed: true, dueDate: todayPlus(-10) });
   store.addTask({ id: 't2', userId: 'alice', title: 'Pending future', completed: false, dueDate: todayPlus(3) });
   store.addTask({ id: 't3', userId: 'alice', title: 'Overdue', completed: false, dueDate: todayPlus(-2) });
   store.addTask({ id: 't4', userId: 'alice', title: 'No due date', completed: false, dueDate: null });
 
   await withServer(async (base) => {
-    const res = await fetch(`${base}/dashboard`, { headers: { 'x-user-id': 'alice' } });
+    const { cookie } = await loginAs(base, 'alice', 'correct-horse-battery-staple');
+    const res = await fetch(`${base}/dashboard`, { headers: { cookie } });
     assert.equal(res.status, 200);
     const html = await res.text();
 
@@ -43,13 +54,14 @@ test('AC1: dashboard page renders the four summary counts for the logged-in user
 });
 
 test('AC2: dashboard page lists upcoming due tasks in ascending due-date order', async () => {
-  store.addUser({ id: 'bob' });
+  store.addUser({ id: 'bob', password: 'bob-secret-1' });
   store.addTask({ id: 't1', userId: 'bob', title: 'Later', completed: false, dueDate: todayPlus(5) });
   store.addTask({ id: 't2', userId: 'bob', title: 'Soonest', completed: false, dueDate: todayPlus(1) });
   store.addTask({ id: 't3', userId: 'bob', title: 'Middle', completed: false, dueDate: todayPlus(3) });
 
   await withServer(async (base) => {
-    const res = await fetch(`${base}/dashboard`, { headers: { 'x-user-id': 'bob' } });
+    const { cookie } = await loginAs(base, 'bob', 'bob-secret-1');
+    const res = await fetch(`${base}/dashboard`, { headers: { cookie } });
     const html = await res.text();
 
     const titles = [...html.matchAll(/data-testid="upcoming-item"[^>]*>([^(]+)\(/g)].map((m) => m[1].trim());
@@ -58,12 +70,13 @@ test('AC2: dashboard page lists upcoming due tasks in ascending due-date order',
 });
 
 test('AC3: dashboard shows an empty-state message when nothing is due within 7 days', async () => {
-  store.addUser({ id: 'carol' });
+  store.addUser({ id: 'carol', password: 'carol-secret-1' });
   store.addTask({ id: 't1', userId: 'carol', title: 'Far future', completed: false, dueDate: todayPlus(20) });
   store.addTask({ id: 't2', userId: 'carol', title: 'No due date', completed: false, dueDate: null });
 
   await withServer(async (base) => {
-    const res = await fetch(`${base}/dashboard`, { headers: { 'x-user-id': 'carol' } });
+    const { cookie } = await loginAs(base, 'carol', 'carol-secret-1');
+    const res = await fetch(`${base}/dashboard`, { headers: { cookie } });
     const html = await res.text();
 
     assert.match(html, /data-testid="upcoming-empty"/);
@@ -72,8 +85,8 @@ test('AC3: dashboard shows an empty-state message when nothing is due within 7 d
 });
 
 test('AC9: summary counts and preview list reflect only the requesting user\'s own tasks', async () => {
-  store.addUser({ id: 'dave' });
-  store.addUser({ id: 'erin' });
+  store.addUser({ id: 'dave', password: 'dave-secret-1' });
+  store.addUser({ id: 'erin', password: 'erin-secret-1' });
   store.addTask({ id: 't1', userId: 'dave', title: 'Dave pending', completed: false, dueDate: todayPlus(2) });
   store.addTask({ id: 't2', userId: 'dave', title: 'Dave done', completed: true, dueDate: todayPlus(-5) });
   store.addTask({ id: 't3', userId: 'erin', title: 'Erin pending', completed: false, dueDate: todayPlus(1) });
@@ -81,7 +94,8 @@ test('AC9: summary counts and preview list reflect only the requesting user\'s o
   store.addTask({ id: 't5', userId: 'erin', title: 'Erin done', completed: true, dueDate: todayPlus(-2) });
 
   await withServer(async (base) => {
-    const daveRes = await fetch(`${base}/dashboard`, { headers: { 'x-user-id': 'dave' } });
+    const { cookie: daveCookie } = await loginAs(base, 'dave', 'dave-secret-1');
+    const daveRes = await fetch(`${base}/dashboard`, { headers: { cookie: daveCookie } });
     const daveHtml = await daveRes.text();
     assert.match(daveHtml, /data-testid="total-count">2</);
     assert.match(daveHtml, /data-testid="completed-count">1</);
@@ -90,7 +104,8 @@ test('AC9: summary counts and preview list reflect only the requesting user\'s o
     assert.match(daveHtml, /Dave pending/);
     assert.doesNotMatch(daveHtml, /Erin/);
 
-    const erinRes = await fetch(`${base}/dashboard`, { headers: { 'x-user-id': 'erin' } });
+    const { cookie: erinCookie } = await loginAs(base, 'erin', 'erin-secret-1');
+    const erinRes = await fetch(`${base}/dashboard`, { headers: { cookie: erinCookie } });
     const erinHtml = await erinRes.text();
     assert.match(erinHtml, /data-testid="total-count">3</);
     assert.match(erinHtml, /data-testid="completed-count">1</);
@@ -105,5 +120,25 @@ test('rejects requests without a valid logged-in user', async () => {
   await withServer(async (base) => {
     const res = await fetch(`${base}/dashboard`);
     assert.equal(res.status, 401);
+  });
+});
+
+test('security: rejects a forged x-user-id header naming a real user with no valid session', async () => {
+  store.addUser({ id: 'alice', password: 'correct-horse-battery-staple' });
+  store.addTask({ id: 't1', userId: 'alice', title: 'Secret task', completed: false, dueDate: todayPlus(1) });
+
+  await withServer(async (base) => {
+    const res = await fetch(`${base}/dashboard`, { headers: { 'x-user-id': 'alice' } });
+    assert.equal(res.status, 401);
+  });
+});
+
+test('security: rejects login with an incorrect password and issues no session', async () => {
+  store.addUser({ id: 'alice', password: 'correct-horse-battery-staple' });
+
+  await withServer(async (base) => {
+    const { status, cookie } = await loginAs(base, 'alice', 'wrong-password');
+    assert.equal(status, 401);
+    assert.equal(cookie, null);
   });
 });

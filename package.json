@@ -6,6 +6,6 @@
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
-    "test": "node --test src"
+    "test": "node --test 'src/**/*.test.js'"
   }
 }
