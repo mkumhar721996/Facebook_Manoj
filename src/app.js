@@ -15,7 +15,7 @@ function sendJson(res, status, body) {
 }
 
 function serveStatic(req, res, pathname) {
-  const relativePath = pathname === '/' ? '/index.html' : pathname;
+  const relativePath = pathname === '/' ? 'index.html' : pathname.slice(1);
   const filePath = path.join(PUBLIC_DIR, relativePath);
   if (!filePath.startsWith(PUBLIC_DIR)) {
     sendJson(res, 404, { error: 'Not found' });
