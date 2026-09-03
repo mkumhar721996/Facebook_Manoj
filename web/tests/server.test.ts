@@ -50,12 +50,8 @@ function countBodyRows(html: string): number {
   return (tbody.match(/<tr>/g) ?? []).length;
 }
 
-async function loginAndGetCookie(webBaseUrl: string, userId: string): Promise<string> {
-  const response = await fetch(`${webBaseUrl}/login?userId=${userId}`, {
-    redirect: "manual",
-  });
-  const setCookie = response.headers.get("set-cookie") ?? "";
-  return setCookie.split(";")[0];
+function sessionCookieFor(userId: string): string {
+  return `userId=${userId}`;
 }
 
 test("AC5: GET /tasks without a logged-in cookie is rejected", async () => {
@@ -71,7 +67,7 @@ test("AC5: GET /tasks without a logged-in cookie is rejected", async () => {
 test("AC1/AC7: GET /tasks renders page 1 of 10 rows for an 11-task user, and page 2 the remaining 1", async () => {
   const stack = await startStack(makeTasks(11));
   try {
-    const cookie = await loginAndGetCookie(stack.webBaseUrl, "userA");
+    const cookie = sessionCookieFor("userA");
 
     const page1Html = await (
       await fetch(`${stack.webBaseUrl}/tasks`, { headers: { Cookie: cookie } })
@@ -92,7 +88,7 @@ test("AC1/AC7: GET /tasks renders page 1 of 10 rows for an 11-task user, and pag
 test("AC4: GET /tasks shows the empty state for a user with no tasks", async () => {
   const stack = await startStack([]);
   try {
-    const cookie = await loginAndGetCookie(stack.webBaseUrl, "userA");
+    const cookie = sessionCookieFor("userA");
     const html = await (
       await fetch(`${stack.webBaseUrl}/tasks`, { headers: { Cookie: cookie } })
     ).text();
@@ -106,11 +102,41 @@ test("AC5: GET /tasks only shows the logged-in user's tasks", async () => {
   const tasks = [...makeTasks(2, "userA"), ...makeTasks(1, "userB")];
   const stack = await startStack(tasks);
   try {
-    const cookie = await loginAndGetCookie(stack.webBaseUrl, "userA");
+    const cookie = sessionCookieFor("userA");
     const html = await (
       await fetch(`${stack.webBaseUrl}/tasks`, { headers: { Cookie: cookie } })
     ).text();
     assert.equal(countBodyRows(html), 2);
+  } finally {
+    await stack.close();
+  }
+});
+
+test("review: GET /tasks returns 500 instead of crashing when the API call fails", async () => {
+  const failingFetch = async () => {
+    throw new Error("connection refused");
+  };
+  const webServer = createWebServer("http://api.invalid", failingFetch as typeof fetch);
+  const webBaseUrl = await listen(webServer);
+
+  try {
+    const response = await fetch(`${webBaseUrl}/tasks`, {
+      headers: { Cookie: sessionCookieFor("userA") },
+    });
+    assert.equal(response.status, 500);
+  } finally {
+    await close(webServer);
+  }
+});
+
+test("security: GET /login no longer exists as a self-service impersonation endpoint", async () => {
+  const stack = await startStack([]);
+  try {
+    const response = await fetch(`${stack.webBaseUrl}/login?userId=bob`, {
+      redirect: "manual",
+    });
+    assert.equal(response.status, 404);
+    assert.equal(response.headers.get("set-cookie"), null);
   } finally {
     await stack.close();
   }

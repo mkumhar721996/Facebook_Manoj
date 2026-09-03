@@ -49,3 +49,16 @@ test("AC2: renderTaskTable exposes due date and created date header links too", 
   assert.ok(html.includes('sortBy=dueDate&amp;order=desc'));
   assert.ok(html.includes('sortBy=createdAt&amp;order=asc'));
 });
+
+test("AC1: renderTaskTable header cell count matches body cell count per row (valid table structure)", () => {
+  const html = renderTaskTable(tasks, { sortBy: "dueDate", order: "asc" });
+
+  const headerRow = html.match(/<thead>([\s\S]*?)<\/thead>/)?.[1] ?? "";
+  const headerCellCount = (headerRow.match(/<th/g) ?? []).length;
+
+  const firstBodyRow = html.match(/<tbody>[\s\S]*?<tr>([\s\S]*?)<\/tr>/)?.[1] ?? "";
+  const bodyCellCount = (firstBodyRow.match(/<td/g) ?? []).length;
+
+  assert.equal(headerCellCount, bodyCellCount);
+  assert.ok(html.includes("<th>Title</th>"));
+});

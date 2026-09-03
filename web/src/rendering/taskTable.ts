@@ -15,6 +15,10 @@ function renderHeaderCell(field: SortField, label: string, currentSort: Sort): s
   return `<th><a href="${href}" data-sort-field="${field}">${escapeHtml(label)}${indicator}</a></th>`;
 }
 
+function renderTitleHeaderCell(): string {
+  return "<th>Title</th>";
+}
+
 function renderRow(task: Task): string {
   return `<tr>
     <td>${escapeHtml(task.title)}</td>
@@ -25,9 +29,9 @@ function renderRow(task: Task): string {
 }
 
 export function renderTaskTable(tasks: Task[], currentSort: Sort): string {
-  const headerCells = COLUMNS.map(({ field, label }) =>
-    renderHeaderCell(field, label, currentSort)
-  ).join("");
+  const headerCells =
+    renderTitleHeaderCell() +
+    COLUMNS.map(({ field, label }) => renderHeaderCell(field, label, currentSort)).join("");
   const rows = tasks.map(renderRow).join("");
 
   return `<table>
