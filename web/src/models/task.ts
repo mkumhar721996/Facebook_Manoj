@@ -1,16 +1,10 @@
-export type Priority = "low" | "medium" | "high";
-
-export interface Task {
-  id: string;
-  userId: string;
-  title: string;
-  dueDate: string;
-  priority: Priority;
-  createdAt: string;
-}
-
-export type SortField = "dueDate" | "priority" | "createdAt";
-export type SortOrder = "asc" | "desc";
+export {
+  type Priority,
+  type Task,
+  type SortField,
+  type SortOrder,
+} from "../../../shared/models/task.ts";
+import type { SortField, SortOrder, Task } from "../../../shared/models/task.ts";
 
 export interface Sort {
   sortBy: SortField;

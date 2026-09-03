@@ -1,13 +1,11 @@
-export type Priority = "low" | "medium" | "high";
-
-export interface Task {
-  id: string;
-  userId: string;
-  title: string;
-  dueDate: string;
-  priority: Priority;
-  createdAt: string;
-}
+export {
+  type Priority,
+  type Task,
+  type SortField,
+  type SortOrder,
+  SORTABLE_FIELDS,
+} from "../../../shared/models/task.ts";
+import type { Priority, SortField, SortOrder } from "../../../shared/models/task.ts";
 
 export const PRIORITY_ORDER: Record<Priority, number> = {
   low: 0,
@@ -15,10 +13,6 @@ export const PRIORITY_ORDER: Record<Priority, number> = {
   high: 2,
 };
 
-export type SortField = "dueDate" | "priority" | "createdAt";
-export type SortOrder = "asc" | "desc";
-
-export const SORTABLE_FIELDS: SortField[] = ["dueDate", "priority", "createdAt"];
 export const DEFAULT_SORT_FIELD: SortField = "dueDate";
 export const DEFAULT_SORT_ORDER: SortOrder = "asc";
 export const PAGE_SIZE = 10;

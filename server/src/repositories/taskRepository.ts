@@ -3,11 +3,11 @@ import {
   DEFAULT_SORT_ORDER,
   PAGE_SIZE,
   PRIORITY_ORDER,
-  SORTABLE_FIELDS,
   type SortField,
   type SortOrder,
   type Task,
 } from "../models/task.ts";
+import { isSortField, isSortOrder } from "../../../shared/validation/sort.ts";
 
 export interface ListOptions {
   sortBy?: string;
@@ -25,14 +25,6 @@ export interface ListResult {
 
 export interface TaskRepository {
   list(userId: string, options: ListOptions): ListResult;
-}
-
-function isSortField(value: string | undefined): value is SortField {
-  return !!value && SORTABLE_FIELDS.includes(value as SortField);
-}
-
-function isSortOrder(value: string | undefined): value is SortOrder {
-  return value === "asc" || value === "desc";
 }
 
 function compareBy(field: SortField, a: Task, b: Task): number {

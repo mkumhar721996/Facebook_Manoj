@@ -5,6 +5,9 @@ import { createApp } from "../../server/src/app.ts";
 import { InMemoryTaskRepository } from "../../server/src/repositories/taskRepository.ts";
 import type { Task } from "../../server/src/models/task.ts";
 import { createWebServer } from "../src/server.ts";
+import { createSessionCookie } from "../src/session.ts";
+
+const TEST_SESSION_SECRET = "test-session-secret";
 
 function makeTasks(count: number, userId = "userA"): Task[] {
   return Array.from({ length: count }, (_, i) => ({
@@ -34,7 +37,7 @@ function close(server: Server): Promise<void> {
 async function startStack(tasks: Task[]) {
   const apiServer = createApp(new InMemoryTaskRepository(tasks));
   const apiBaseUrl = await listen(apiServer);
-  const webServer = createWebServer(apiBaseUrl);
+  const webServer = createWebServer(apiBaseUrl, TEST_SESSION_SECRET);
   const webBaseUrl = await listen(webServer);
   return {
     webBaseUrl,
@@ -51,7 +54,7 @@ function countBodyRows(html: string): number {
 }
 
 function sessionCookieFor(userId: string): string {
-  return `userId=${userId}`;
+  return createSessionCookie(userId, TEST_SESSION_SECRET);
 }
 
 test("AC5: GET /tasks without a logged-in cookie is rejected", async () => {
@@ -116,7 +119,11 @@ test("review: GET /tasks returns 500 instead of crashing when the API call fails
   const failingFetch = async () => {
     throw new Error("connection refused");
   };
-  const webServer = createWebServer("http://api.invalid", failingFetch as typeof fetch);
+  const webServer = createWebServer(
+    "http://api.invalid",
+    TEST_SESSION_SECRET,
+    failingFetch as typeof fetch
+  );
   const webBaseUrl = await listen(webServer);
 
   try {
@@ -126,6 +133,20 @@ test("review: GET /tasks returns 500 instead of crashing when the API call fails
     assert.equal(response.status, 500);
   } finally {
     await close(webServer);
+  }
+});
+
+test("security: GET /tasks with a forged, unsigned userId cookie is rejected (IDOR)", async () => {
+  const tasks = makeTasks(1, "victim");
+  const stack = await startStack(tasks);
+  try {
+    const forgedCookie = "session=victim.deadbeef";
+    const response = await fetch(`${stack.webBaseUrl}/tasks`, {
+      headers: { Cookie: forgedCookie },
+    });
+    assert.equal(response.status, 401);
+  } finally {
+    await stack.close();
   }
 });
 

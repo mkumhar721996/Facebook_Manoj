@@ -2,15 +2,18 @@ import http, { type Server } from "node:http";
 import { fetchTasks } from "./api/tasksApi.ts";
 import { renderTaskListPage } from "./rendering/taskListPage.ts";
 import { parseRequestedSort, parseRequestedPage } from "./rendering/requestState.ts";
-import { parseCookies } from "./cookies.ts";
+import { verifySession } from "./session.ts";
 
-export function createWebServer(apiBaseUrl: string, fetchImpl: typeof fetch = fetch): Server {
+export function createWebServer(
+  apiBaseUrl: string,
+  sessionSecret: string,
+  fetchImpl: typeof fetch = fetch
+): Server {
   return http.createServer(async (req, res) => {
     const url = new URL(req.url ?? "/", "http://localhost");
 
     if (req.method === "GET" && url.pathname === "/tasks") {
-      const cookies = parseCookies(req.headers.cookie);
-      const userId = cookies.userId;
+      const userId = verifySession(req.headers.cookie, sessionSecret);
 
       if (!userId) {
         res.writeHead(401, { "Content-Type": "text/plain" });
