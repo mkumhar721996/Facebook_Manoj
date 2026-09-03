@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { createRegisterController } from "../src/controllers/registerController.js";
+import { createAuthStore, createMemoryStorage } from "../src/state/authStore.js";
 
 function makeController({ registerImpl } = {}) {
   const navigateCalls = [];
@@ -8,21 +9,23 @@ function makeController({ registerImpl } = {}) {
   const authClient = {
     register(email, password) {
       registerCalls.push([email, password]);
-      return registerImpl ? registerImpl(email, password) : Promise.resolve({ email });
+      return registerImpl ? registerImpl(email, password) : Promise.resolve({ email, token: "jwt-token" });
     },
   };
+  const authStore = createAuthStore({ storage: createMemoryStorage() });
   const navigate = (path) => navigateCalls.push(path);
-  const controller = createRegisterController({ authClient, navigate });
-  return { controller, navigateCalls, registerCalls };
+  const controller = createRegisterController({ authClient, authStore, navigate });
+  return { controller, authStore, navigateCalls, registerCalls };
 }
 
-test("valid registration creates the account and redirects to the task list", async () => {
-  const { controller, navigateCalls, registerCalls } = makeController();
+test("valid registration creates the account, logs the user in, and redirects to the task list", async () => {
+  const { controller, authStore, navigateCalls, registerCalls } = makeController();
 
   const result = await controller.submit("a@b.com", "Abcd1234");
 
   assert.equal(result.success, true);
   assert.deepEqual(registerCalls, [["a@b.com", "Abcd1234"]]);
+  assert.equal(authStore.getToken(), "jwt-token");
   assert.deepEqual(navigateCalls, ["/tasks"]);
 });
 

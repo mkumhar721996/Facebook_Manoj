@@ -29,7 +29,8 @@ export function handleRegister(db: Db, body: unknown): RouteResult {
   }
 
   const user = create(db, normalizedEmail, hash(password as string));
-  return { status: 201, body: { email: user.email } };
+  const token = signToken({ sub: user.id, email: user.email });
+  return { status: 201, body: { email: user.email, token } };
 }
 
 const INVALID_CREDENTIALS_ERROR = "Invalid email or password";

@@ -1,6 +1,6 @@
 import { isEmailValid, isPasswordValid } from "../validation.js";
 
-export function createRegisterController({ authClient, navigate }) {
+export function createRegisterController({ authClient, authStore, navigate }) {
   return {
     async submit(email, password) {
       if (!email) {
@@ -19,12 +19,14 @@ export function createRegisterController({ authClient, navigate }) {
         };
       }
 
+      let result;
       try {
-        await authClient.register(email, password);
+        result = await authClient.register(email, password);
       } catch (err) {
         return { success: false, error: err.message };
       }
 
+      authStore.login(result.token);
       navigate("/tasks");
       return { success: true };
     },

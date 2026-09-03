@@ -22,7 +22,7 @@ function render() {
   const path = window.location.pathname;
 
   if (path === "/register") {
-    renderRegisterPage(app, { controller: createRegisterController({ authClient, navigate }) });
+    renderRegisterPage(app, { controller: createRegisterController({ authClient, authStore, navigate }) });
     return;
   }
 

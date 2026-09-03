@@ -4,6 +4,7 @@ import { createServer, type Server } from "node:http";
 import { createApp } from "../src/app.ts";
 import { createDb, type Db } from "../src/db.ts";
 import { findByEmail } from "../src/users/repository.ts";
+import { verifyToken } from "../src/auth/jwt.ts";
 
 let server: Server;
 let db: Db;
@@ -34,7 +35,7 @@ function postJson(path: string, body: unknown) {
 const VALID_CREDENTIAL = "Abcd1234";
 const OTHER_VALID_CREDENTIAL = "Different9";
 
-test("registers a new user, returning 201 with the created email and hashing the password", async () => {
+test("registers a new user, returning 201 with the created email, a JWT, and hashing the password", async () => {
   const res = await postJson("/auth/register", { email: "a@b.com", password: VALID_CREDENTIAL });
   assert.equal(res.status, 201);
 
@@ -42,6 +43,10 @@ test("registers a new user, returning 201 with the created email and hashing the
   assert.equal(data.email, "a@b.com");
   assert.equal("password" in data, false);
   assert.equal("passwordHash" in data, false);
+
+  const payload = verifyToken(data.token);
+  assert.ok(payload);
+  assert.equal(payload?.email, "a@b.com");
 
   const stored = findByEmail(db, "a@b.com");
   assert.ok(stored);

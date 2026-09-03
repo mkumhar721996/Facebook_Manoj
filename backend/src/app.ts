@@ -22,9 +22,11 @@ function sendJson(res: ServerResponse, status: number, body: unknown): void {
   res.end(payload);
 }
 
+const ALLOWED_ORIGIN = `http://localhost:${Number(process.env.ARC_WEB_PORT ?? 3001)}`;
+
 export function createApp(db: Db): RequestListener {
   return (req, res) => {
-    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Origin", ALLOWED_ORIGIN);
     res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
 
