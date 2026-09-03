@@ -15,7 +15,7 @@ export function createRegisterController({ authClient, navigate }) {
       if (!isPasswordValid(password)) {
         return {
           success: false,
-          error: "Password must be at least 8 characters long and include a letter and a digit",
+          error: "Password must be at least 8 characters and include at least one letter and one digit",
         };
       }
 

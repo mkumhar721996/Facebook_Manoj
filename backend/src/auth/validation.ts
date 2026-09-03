@@ -25,7 +25,7 @@ export function validateRegistration(body: { email?: unknown; password?: unknown
   if (typeof password !== "string" || !isPasswordStrongEnough(password)) {
     return {
       ok: false,
-      error: "Password must be at least 8 characters long and include at least one letter and one digit",
+      error: "Password must be at least 8 characters and include at least one letter and one digit",
     };
   }
 

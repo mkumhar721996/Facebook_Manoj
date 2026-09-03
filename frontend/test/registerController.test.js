@@ -66,7 +66,7 @@ test("weak password is rejected client-side without calling the API", async () =
   const result = await controller.submit("a@b.com", "abc");
 
   assert.equal(result.success, false);
-  assert.match(result.error, /password/i);
+  assert.equal(result.error, "Password must be at least 8 characters and include at least one letter and one digit");
   assert.deepEqual(registerCalls, []);
   assert.deepEqual(navigateCalls, []);
 });

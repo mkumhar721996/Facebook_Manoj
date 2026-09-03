@@ -2,6 +2,10 @@ import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
 
 const KEY_LENGTH = 64;
 
+// A validly-shaped but non-matching hash, used to force a real scrypt computation
+// when no account exists, so login timing doesn't reveal whether an email is registered.
+export const DUMMY_PASSWORD_HASH = `${"0".repeat(32)}:${"0".repeat(KEY_LENGTH * 2)}`;
+
 export function hash(password: string): string {
   const salt = randomBytes(16).toString("hex");
   const derivedKey = scryptSync(password, salt, KEY_LENGTH).toString("hex");

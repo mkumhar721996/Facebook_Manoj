@@ -4,8 +4,9 @@ import { createServer, type Server } from "node:http";
 import { createApp } from "../src/app.ts";
 import { createDb, type Db } from "../src/db.ts";
 import { create } from "../src/users/repository.ts";
-import { hash } from "../src/auth/password.ts";
+import { hash, DUMMY_PASSWORD_HASH } from "../src/auth/password.ts";
 import { verifyToken } from "../src/auth/jwt.ts";
+import { resolvePasswordHash } from "../src/auth/routes.ts";
 
 let server: Server;
 let db: Db;
@@ -63,4 +64,14 @@ test("rejects login with an incorrect password, without issuing a token", async 
   const data = await res.json();
   assert.match(data.error, /invalid email or password/i);
   assert.equal("token" in data, false);
+});
+
+test("resolves a dummy hash for an unknown user so password verification always runs (prevents timing-based user enumeration)", () => {
+  assert.equal(resolvePasswordHash(undefined), DUMMY_PASSWORD_HASH);
+});
+
+test("resolves the real stored hash for a known user", () => {
+  const user = create(db, "known@example.com", hash(VALID_CREDENTIAL));
+  assert.equal(resolvePasswordHash(user), user.passwordHash);
+  assert.notEqual(resolvePasswordHash(user), DUMMY_PASSWORD_HASH);
 });

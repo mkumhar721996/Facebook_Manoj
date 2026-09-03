@@ -1,7 +1,8 @@
 import type { Db } from "../db.ts";
+import type { UserRecord } from "../db.ts";
 import { create, findByEmail } from "../users/repository.ts";
 import { validateRegistration } from "./validation.ts";
-import { hash, verify } from "./password.ts";
+import { hash, verify, DUMMY_PASSWORD_HASH } from "./password.ts";
 import { signToken } from "./jwt.ts";
 
 export interface RouteResult {
@@ -33,6 +34,10 @@ export function handleRegister(db: Db, body: unknown): RouteResult {
 
 const INVALID_CREDENTIALS_ERROR = "Invalid email or password";
 
+export function resolvePasswordHash(user: UserRecord | undefined): string {
+  return user ? user.passwordHash : DUMMY_PASSWORD_HASH;
+}
+
 export function handleLogin(db: Db, body: unknown): RouteResult {
   const { email, password } = (body ?? {}) as Credentials;
 
@@ -41,7 +46,8 @@ export function handleLogin(db: Db, body: unknown): RouteResult {
   }
 
   const user = findByEmail(db, email);
-  if (!user || !verify(password, user.passwordHash)) {
+  const passwordOk = verify(password, resolvePasswordHash(user));
+  if (!user || !passwordOk) {
     return { status: 401, body: { error: INVALID_CREDENTIALS_ERROR } };
   }
 

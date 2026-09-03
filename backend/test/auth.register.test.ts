@@ -81,6 +81,6 @@ test("rejects registration with a password below the minimum strength requiremen
   const res = await postJson("/auth/register", { email: "a@b.com", password: "short" });
   assert.equal(res.status, 400);
   const data = await res.json();
-  assert.match(data.error, /password/i);
+  assert.equal(data.error, "Password must be at least 8 characters and include at least one letter and one digit");
   assert.equal(db.users.size, 0);
 });
