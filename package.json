@@ -1,0 +1,10 @@
+{
+  "name": "facebook-manoj",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Password reset flow",
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/"
+  }
+}
