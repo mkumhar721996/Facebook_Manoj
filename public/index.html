@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Tasks</title>
+  </head>
+  <body>
+    <ul id="task-list"></ul>
+    <script src="/js/taskList.js"></script>
+    <script>
+      fetch('/api/tasks')
+        .then((res) => res.json())
+        .then((tasks) => {
+          mount(document.getElementById('task-list'), tasks);
+        });
+    </script>
+  </body>
+</html>

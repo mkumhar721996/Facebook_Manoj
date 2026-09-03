@@ -1,0 +1,10 @@
+{
+  "name": "facebbok-manoj-story-004",
+  "version": "1.0.0",
+  "description": "Task completion toggle and hard delete",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node --test tests/"
+  }
+}
