@@ -61,6 +61,23 @@ test("POST /password-reset/request returns identical responses for registered an
   }
 });
 
+test("POST /password-reset/request rejects an oversized body instead of buffering it", async () => {
+  const { app, baseUrl, emailSender } = await startServer();
+  try {
+    const oversizedEmail = `${"a".repeat(11 * 1024)}@example.com`;
+    const response = await fetch(`${baseUrl}/password-reset/request`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ email: oversizedEmail }),
+    });
+
+    assert.equal(response.status, 413);
+    assert.equal(emailSender.sentEmails.length, 0);
+  } finally {
+    await stopServer(app);
+  }
+});
+
 test("POST /password-reset/confirm with a valid token and strong password redirects to /login", async () => {
   const { app, baseUrl, tokenRepository } = await startServer();
   const token = "b".repeat(64);
