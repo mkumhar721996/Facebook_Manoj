@@ -1,0 +1,11 @@
+{
+  "name": "facebook-manoj-dashboard",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Dashboard feature for logged-in users",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node --test src"
+  }
+}
