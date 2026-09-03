@@ -8,11 +8,14 @@ function randomTestCredential(): string {
   return randomBytes(16).toString('hex');
 }
 
-function stubFetch(handler: (url: string, options?: RequestInit) => unknown): () => void {
+function stubFetch(
+  handler: (url: string, options?: RequestInit) => unknown,
+  status = 200,
+): () => void {
   const originalFetch = globalThis.fetch;
   globalThis.fetch = (async (url: string, options?: RequestInit) => {
     const result = handler(url, options);
-    return { status: 200, json: async () => result } as Response;
+    return { status, ok: status >= 200 && status < 300, json: async () => result } as Response;
   }) as typeof fetch;
   return () => {
     globalThis.fetch = originalFetch;
@@ -83,6 +86,30 @@ test('fetchTasks: omits the authorization header when there is no token', async 
     const headers = (capturedOptions?.headers ?? {}) as Record<string, string>;
     assert.equal(headers.Authorization, undefined);
   } finally {
+    restore();
+  }
+});
+
+test('fetchTasks: throws and does not return the error body when the response is not ok', async () => {
+  setAuthToken(null);
+  const restore = stubFetch(() => ({ error: 'Unauthorized' }), 401);
+
+  try {
+    await assert.rejects(() => fetchTasks({}));
+  } finally {
+    restore();
+  }
+});
+
+test('login: throws and does not store a token when the response is not ok', async () => {
+  setAuthToken(null);
+  const restore = stubFetch(() => ({ error: 'Invalid credentials' }), 401);
+
+  try {
+    await assert.rejects(() => login('alice', randomTestCredential()));
+    assert.equal(getAuthToken(), null);
+  } finally {
+    setAuthToken(null);
     restore();
   }
 });

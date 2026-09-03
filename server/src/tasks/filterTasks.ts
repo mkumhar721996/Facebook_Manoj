@@ -1,14 +1,15 @@
 import type { Task, TaskFilters } from './task.types.ts';
 
 export function filterTasks(tasks: Task[], filters: TaskFilters): Task[] {
-  return tasks.filter((task) => matchesFilters(task, filters));
+  const searchTerm = filters.search ? filters.search.toLowerCase() : undefined;
+  return tasks.filter((task) => matchesFilters(task, filters, searchTerm));
 }
 
-function matchesFilters(task: Task, filters: TaskFilters): boolean {
-  if (filters.search) {
-    const term = filters.search.toLowerCase();
+function matchesFilters(task: Task, filters: TaskFilters, searchTerm: string | undefined): boolean {
+  if (searchTerm) {
     const matchesSearch =
-      task.title.toLowerCase().includes(term) || task.description.toLowerCase().includes(term);
+      task.title.toLowerCase().includes(searchTerm) ||
+      task.description.toLowerCase().includes(searchTerm);
     if (!matchesSearch) return false;
   }
 

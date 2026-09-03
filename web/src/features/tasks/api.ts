@@ -12,6 +12,9 @@ export async function fetchTasks(filters: TaskFilters): Promise<Task[]> {
   const response = await fetch(`/api/tasks${query ? `?${query}` : ''}`, {
     headers: authHeaders(),
   });
+  if (!response.ok) {
+    throw new Error(`Failed to fetch tasks: ${response.status}`);
+  }
   return response.json();
 }
 
@@ -21,6 +24,9 @@ export async function login(username: string, password: string): Promise<string>
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ username, password }),
   });
+  if (!response.ok) {
+    throw new Error(`Login failed: ${response.status}`);
+  }
   const { token } = await response.json();
   setAuthToken(token);
   return token;
