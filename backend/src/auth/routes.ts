@@ -15,7 +15,7 @@ interface Credentials {
   password?: unknown;
 }
 
-export function handleRegister(db: Db, body: unknown): RouteResult {
+export async function handleRegister(db: Db, body: unknown): Promise<RouteResult> {
   const { email, password } = (body ?? {}) as Credentials;
 
   const validation = validateRegistration({ email, password });
@@ -24,11 +24,15 @@ export function handleRegister(db: Db, body: unknown): RouteResult {
   }
 
   const normalizedEmail = (email as string).toLowerCase();
+  // Hash unconditionally, before the duplicate-email check, so registering an
+  // existing email takes the same time as registering a new one (mirrors the
+  // resolvePasswordHash approach in handleLogin below).
+  const passwordHash = await hash(password as string);
   if (findByEmail(db, normalizedEmail)) {
     return { status: 409, body: { error: "Email already registered" } };
   }
 
-  const user = create(db, normalizedEmail, hash(password as string));
+  const user = create(db, normalizedEmail, passwordHash);
   const token = signToken({ sub: user.id, email: user.email });
   return { status: 201, body: { email: user.email, token } };
 }
@@ -39,7 +43,7 @@ export function resolvePasswordHash(user: UserRecord | undefined): string {
   return user ? user.passwordHash : DUMMY_PASSWORD_HASH;
 }
 
-export function handleLogin(db: Db, body: unknown): RouteResult {
+export async function handleLogin(db: Db, body: unknown): Promise<RouteResult> {
   const { email, password } = (body ?? {}) as Credentials;
 
   if (typeof email !== "string" || !email || typeof password !== "string" || !password) {
@@ -47,7 +51,7 @@ export function handleLogin(db: Db, body: unknown): RouteResult {
   }
 
   const user = findByEmail(db, email);
-  const passwordOk = verify(password, resolvePasswordHash(user));
+  const passwordOk = await verify(password, resolvePasswordHash(user));
   if (!user || !passwordOk) {
     return { status: 401, body: { error: INVALID_CREDENTIALS_ERROR } };
   }

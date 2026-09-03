@@ -41,13 +41,13 @@ export function createApp(db: Db): RequestListener {
 
       try {
         if (req.method === "POST" && url.pathname === "/auth/register") {
-          const result = handleRegister(db, await readJsonBody(req));
+          const result = await handleRegister(db, await readJsonBody(req));
           sendJson(res, result.status, result.body);
           return;
         }
 
         if (req.method === "POST" && url.pathname === "/auth/login") {
-          const result = handleLogin(db, await readJsonBody(req));
+          const result = await handleLogin(db, await readJsonBody(req));
           sendJson(res, result.status, result.body);
           return;
         }

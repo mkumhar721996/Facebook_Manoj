@@ -1,6 +1,5 @@
-import { createHmac, timingSafeEqual } from "node:crypto";
+import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 
-const DEFAULT_DEV_SECRET = "dev-insecure-secret-change-me";
 const DEFAULT_EXPIRY_SECONDS = 3600;
 
 export interface JwtPayload {
@@ -10,8 +9,27 @@ export interface JwtPayload {
   exp?: number;
 }
 
+// Resolved once per process: a fixed, hardcoded secret would let anyone who
+// reads the source code forge tokens. When JWT_SECRET isn't configured, fall
+// back to a random secret generated at startup (tokens won't survive a
+// restart, which is acceptable for a single dev/test process but not for a
+// multi-instance production deployment where JWT_SECRET must be set).
+function resolveSecret(): string {
+  if (process.env.JWT_SECRET) {
+    return process.env.JWT_SECRET;
+  }
+  console.warn(
+    "JWT_SECRET is not set; using a random secret generated for this process. " +
+      "Tokens will be invalidated on restart and won't be valid across multiple instances. " +
+      "Set JWT_SECRET before deploying to production.",
+  );
+  return randomBytes(32).toString("hex");
+}
+
+const SECRET = resolveSecret();
+
 function getSecret(): string {
-  return process.env.JWT_SECRET ?? DEFAULT_DEV_SECRET;
+  return SECRET;
 }
 
 function base64url(input: string): string {

@@ -18,7 +18,7 @@ const WRONG_CREDENTIAL = "WrongPass1";
 
 beforeEach(async () => {
   db = createDb();
-  create(db, "user@example.com", hash(VALID_CREDENTIAL));
+  create(db, "user@example.com", await hash(VALID_CREDENTIAL));
   server = createServer(createApp(db));
   await new Promise<void>((resolve) => server.listen(0, resolve));
   const address = server.address();
@@ -70,8 +70,8 @@ test("resolves a dummy hash for an unknown user so password verification always 
   assert.equal(resolvePasswordHash(undefined), DUMMY_PASSWORD_HASH);
 });
 
-test("resolves the real stored hash for a known user", () => {
-  const user = create(db, "known@example.com", hash(VALID_CREDENTIAL));
+test("resolves the real stored hash for a known user", async () => {
+  const user = create(db, "known@example.com", await hash(VALID_CREDENTIAL));
   assert.equal(resolvePasswordHash(user), user.passwordHash);
   assert.notEqual(resolvePasswordHash(user), DUMMY_PASSWORD_HASH);
 });
