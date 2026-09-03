@@ -6,6 +6,7 @@ import type { Task } from './task.types.ts';
 function makeTask(id: string): Task {
   return {
     id,
+    userId: 'user-1',
     title: 'Task',
     description: '',
     status: 'incomplete',

@@ -1,6 +1,17 @@
-import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
+import { createHmac, timingSafeEqual } from 'node:crypto';
 
-const SECRET = process.env.SESSION_SECRET ?? randomBytes(32).toString('hex');
+function requireSessionSecret(): string {
+  const secret = process.env.SESSION_SECRET;
+  if (!secret) {
+    throw new Error(
+      'SESSION_SECRET environment variable must be set (a randomly generated one would ' +
+        'invalidate all sessions on every server restart)',
+    );
+  }
+  return secret;
+}
+
+const SECRET = requireSessionSecret();
 
 export function createSessionToken(userId: string): string {
   const payload = Buffer.from(userId, 'utf8').toString('base64url');
