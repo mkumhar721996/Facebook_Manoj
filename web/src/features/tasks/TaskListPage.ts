@@ -1,12 +1,9 @@
 import { fetchTasks } from './api.ts';
-import { debounce } from './debounce.ts';
 import { escapeHtml } from './escapeHtml.ts';
 import { clearFilters, updateFilter } from './filterState.ts';
 import { TASK_LOAD_ERROR_MESSAGE } from './taskListErrorMessage.ts';
 import { getTaskListViewState } from './taskListViewState.ts';
 import type { TaskFilters } from './task.types.ts';
-
-const FILTER_DEBOUNCE_MS = 300;
 
 const FILTER_FIELDS: (keyof TaskFilters)[] = [
   'search',
@@ -72,13 +69,11 @@ export function mountTaskListPage(root: HTMLElement): void {
       .join('');
   }
 
-  const debouncedRefresh = debounce(() => void refresh(), FILTER_DEBOUNCE_MS);
-
   form.addEventListener('input', (event) => {
     const target = event.target as HTMLInputElement | HTMLSelectElement;
     if (!isFilterField(target.name)) return;
     filters = updateFilter(filters, target.name, target.value);
-    debouncedRefresh();
+    void refresh();
   });
 
   root.querySelector('#clear-filters')?.addEventListener('click', () => {

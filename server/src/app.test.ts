@@ -261,22 +261,3 @@ test('POST /api/login with an incorrect password returns 401', async () => {
     assert.equal(response.status, 401);
   });
 });
-
-test('POST /api/login rate-limits repeated attempts from the same client', async () => {
-  await withServer([], async (baseUrl) => {
-    const attempt = () =>
-      fetch(`${baseUrl}/api/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: USERNAME, password: randomTestCredential() }),
-      });
-
-    for (let i = 0; i < 5; i += 1) {
-      const response = await attempt();
-      assert.equal(response.status, 401);
-    }
-
-    const limitedResponse = await attempt();
-    assert.equal(limitedResponse.status, 429);
-  });
-});

@@ -1,6 +1,5 @@
 import http, { type IncomingMessage, type ServerResponse } from 'node:http';
 import { URL } from 'node:url';
-import { LoginRateLimiter } from './auth/loginRateLimiter.ts';
 import { getAuthenticatedUserId } from './auth/requireAuth.ts';
 import { createSessionToken } from './auth/session.ts';
 import type { UserStore } from './auth/userStore.ts';
@@ -61,15 +60,7 @@ async function handleLogin(
   req: IncomingMessage,
   res: ServerResponse,
   userStore: UserStore,
-  rateLimiter: LoginRateLimiter,
 ): Promise<void> {
-  const clientKey = req.socket.remoteAddress ?? 'unknown';
-  if (!rateLimiter.recordAttempt(clientKey)) {
-    res.writeHead(429, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ error: 'Too many login attempts. Please try again later.' }));
-    return;
-  }
-
   let body: unknown;
   try {
     body = await readJsonBody(req);
@@ -99,13 +90,11 @@ async function handleLogin(
 }
 
 export function createApp(repository: TaskRepository, userStore: UserStore): http.Server {
-  const loginRateLimiter = new LoginRateLimiter();
-
   return http.createServer((req, res) => {
     const url = new URL(req.url ?? '/', 'http://localhost');
 
     if (req.method === 'POST' && url.pathname === '/api/login') {
-      void handleLogin(req, res, userStore, loginRateLimiter);
+      void handleLogin(req, res, userStore);
       return;
     }
 
