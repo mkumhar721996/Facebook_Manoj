@@ -1,5 +1,7 @@
+const DEMO_SESSION_TOKEN = process.env.DEMO_SESSION_TOKEN || 'demo-session-token';
+
 const SESSIONS = {
-  'demo-session-token': { id: 'demo-user' },
+  [DEMO_SESSION_TOKEN]: { id: 'demo-user' },
 };
 
 function requireAuth(req) {
@@ -9,4 +11,4 @@ function requireAuth(req) {
   return SESSIONS[token] || null;
 }
 
-module.exports = { requireAuth };
+module.exports = { requireAuth, DEMO_SESSION_TOKEN };

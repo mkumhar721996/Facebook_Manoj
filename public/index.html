@@ -6,6 +6,9 @@
   </head>
   <body>
     <ul id="task-list"></ul>
+    <script>
+      window.AUTH_TOKEN = __AUTH_TOKEN__;
+    </script>
     <script src="/js/taskList.js"></script>
     <script>
       fetch('/api/tasks', { headers: { Authorization: 'Bearer ' + window.AUTH_TOKEN } })

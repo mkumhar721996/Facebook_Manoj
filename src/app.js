@@ -3,7 +3,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { URL } = require('node:url');
 const taskStore = require('./models/taskStore');
-const { requireAuth } = require('./middleware/auth');
+const { requireAuth, DEMO_SESSION_TOKEN } = require('./middleware/auth');
 
 const PUBLIC_DIR = path.join(__dirname, '..', 'public');
 const CONTENT_TYPES = { '.html': 'text/html', '.js': 'text/javascript' };
@@ -14,9 +14,24 @@ function sendJson(res, status, body) {
   res.end(payload);
 }
 
+function serveIndex(res) {
+  fs.readFile(path.join(PUBLIC_DIR, 'index.html'), 'utf8', (err, content) => {
+    if (err) {
+      sendJson(res, 404, { error: 'Not found' });
+      return;
+    }
+    const html = content.replace('__AUTH_TOKEN__', JSON.stringify(DEMO_SESSION_TOKEN));
+    res.writeHead(200, { 'Content-Type': 'text/html' });
+    res.end(html);
+  });
+}
+
 function serveStatic(req, res, pathname) {
-  const relativePath = pathname === '/' ? 'index.html' : pathname.slice(1);
-  const filePath = path.join(PUBLIC_DIR, relativePath);
+  if (pathname === '/') {
+    serveIndex(res);
+    return;
+  }
+  const filePath = path.join(PUBLIC_DIR, pathname.slice(1));
   if (!filePath.startsWith(PUBLIC_DIR)) {
     sendJson(res, 404, { error: 'Not found' });
     return;

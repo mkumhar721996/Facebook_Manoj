@@ -1,4 +1,3 @@
-const AUTH_TOKEN = 'demo-session-token';
 const ESCAPE_MAP = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
 
 function escapeHtml(value) {
@@ -6,7 +5,7 @@ function escapeHtml(value) {
 }
 
 function authHeaders() {
-  return { Authorization: `Bearer ${AUTH_TOKEN}` };
+  return { Authorization: `Bearer ${typeof window !== 'undefined' ? window.AUTH_TOKEN : ''}` };
 }
 
 function render(tasks) {
@@ -74,7 +73,10 @@ function mount(container, initialTasks, deps = {}) {
 }
 
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { render, toggleTask, deleteTask, mount, AUTH_TOKEN };
+  module.exports = { render, toggleTask, deleteTask, mount };
 } else {
-  window.AUTH_TOKEN = AUTH_TOKEN;
+  window.render = render;
+  window.toggleTask = toggleTask;
+  window.deleteTask = deleteTask;
+  window.mount = mount;
 }
