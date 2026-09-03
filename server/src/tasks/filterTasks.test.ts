@@ -1,21 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { filterTasks } from './filterTasks.ts';
+import { makeTask } from '../testing/taskFactory.ts';
 import type { Task } from './task.types.ts';
-
-function makeTask(overrides: Partial<Task>): Task {
-  return {
-    id: overrides.id ?? 'id-1',
-    userId: overrides.userId ?? 'user-1',
-    title: overrides.title ?? 'Untitled',
-    description: overrides.description ?? '',
-    status: overrides.status ?? 'incomplete',
-    priority: overrides.priority ?? 'low',
-    tags: overrides.tags ?? [],
-    category: overrides.category ?? 'general',
-    dueDate: overrides.dueDate ?? null,
-  };
-}
 
 test('filterTasks: matches search term in title case-insensitively', () => {
   const tasks: Task[] = [

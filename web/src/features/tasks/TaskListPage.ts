@@ -1,6 +1,7 @@
 import { fetchTasks } from './api.ts';
 import { escapeHtml } from './escapeHtml.ts';
 import { clearFilters, updateFilter } from './filterState.ts';
+import { TASK_LOAD_ERROR_MESSAGE } from './taskListErrorMessage.ts';
 import { getTaskListViewState } from './taskListViewState.ts';
 import type { TaskFilters } from './task.types.ts';
 
@@ -49,7 +50,15 @@ export function mountTaskListPage(root: HTMLElement): void {
   if (!form || !listEl) throw new Error('TaskListPage: expected markup missing');
 
   async function refresh(): Promise<void> {
-    const tasks = await fetchTasks(filters);
+    let tasks;
+    try {
+      tasks = await fetchTasks(filters);
+    } catch (error) {
+      console.error('Failed to load tasks', error);
+      listEl!.textContent = TASK_LOAD_ERROR_MESSAGE;
+      return;
+    }
+
     const state = getTaskListViewState(tasks);
     if (state.isEmpty) {
       listEl!.textContent = state.emptyMessage;
