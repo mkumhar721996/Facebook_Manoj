@@ -2,8 +2,8 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { render, toggleTask, deleteTask } = require('../../public/js/taskList');
 
-function fakeJsonResponse(body) {
-  return Promise.resolve({ json: () => Promise.resolve(body) });
+function fakeJsonResponse(body, { ok = true } = {}) {
+  return Promise.resolve({ ok, json: () => Promise.resolve(body) });
 }
 
 test('toggling an incomplete task marks it complete and the list reflects it (AC1)', async () => {
@@ -46,7 +46,7 @@ test('confirming deletion permanently removes the task from the list (AC3)', asy
   const fetchImpl = (url, options) => {
     deleteCalledUrl = url;
     deleteCalledOptions = options;
-    return Promise.resolve({});
+    return Promise.resolve({ ok: true });
   };
 
   const remainingTasks = await deleteTask(tasks, 't3', { fetchImpl, confirmImpl });
@@ -72,4 +72,28 @@ test('cancelling deletion keeps the task in the list and sends no request (AC4)'
   assert.equal(fetchCalled, false);
   assert.equal(remainingTasks.find((t) => t.id === 't4').id, 't4');
   assert.match(render(remainingTasks), /t4/);
+});
+
+test('render escapes HTML in task titles to prevent stored XSS', () => {
+  const tasks = [{ id: 't5', title: '<img src=x onerror=alert(1)>', completed: false }];
+
+  const html = render(tasks);
+
+  assert.doesNotMatch(html, /<img/);
+  assert.match(html, /&lt;img/);
+});
+
+test('toggleTask rejects and does not corrupt state when the server responds with an error status', async () => {
+  const tasks = [{ id: 't6', title: 'Read book', completed: false }];
+  const fetchImpl = () => fakeJsonResponse({ error: 'Task not found' }, { ok: false });
+
+  await assert.rejects(() => toggleTask(tasks, 't6', { fetchImpl }));
+});
+
+test('deleteTask rejects and does not remove the task when the server responds with an error status', async () => {
+  const tasks = [{ id: 't7', title: 'Water plants', completed: false }];
+  const confirmImpl = () => true;
+  const fetchImpl = () => Promise.resolve({ ok: false });
+
+  await assert.rejects(() => deleteTask(tasks, 't7', { fetchImpl, confirmImpl }));
 });

@@ -35,33 +35,43 @@ function serveStatic(req, res, pathname) {
 function createApp() {
   return http.createServer((req, res) => {
     const url = new URL(req.url, `http://${req.headers.host}`);
-    const user = requireAuth(req);
 
-    if (url.pathname === '/api/tasks' && req.method === 'GET') {
-      sendJson(res, 200, taskStore.list(user.id));
-      return;
-    }
-
-    const toggleMatch = url.pathname.match(/^\/api\/tasks\/([^/]+)\/toggle$/);
-    if (toggleMatch && req.method === 'PATCH') {
-      const updated = taskStore.toggle(toggleMatch[1], user.id);
-      if (!updated) {
-        sendJson(res, 404, { error: 'Task not found' });
+    if (url.pathname.startsWith('/api/')) {
+      const user = requireAuth(req);
+      if (!user) {
+        sendJson(res, 401, { error: 'Unauthorized' });
         return;
       }
-      sendJson(res, 200, updated);
-      return;
-    }
 
-    const deleteMatch = url.pathname.match(/^\/api\/tasks\/([^/]+)$/);
-    if (deleteMatch && req.method === 'DELETE') {
-      const removed = taskStore.remove(deleteMatch[1], user.id);
-      if (!removed) {
-        sendJson(res, 404, { error: 'Task not found' });
+      if (url.pathname === '/api/tasks' && req.method === 'GET') {
+        sendJson(res, 200, taskStore.list(user.id));
         return;
       }
-      res.writeHead(204);
-      res.end();
+
+      const toggleMatch = url.pathname.match(/^\/api\/tasks\/([^/]+)\/toggle$/);
+      if (toggleMatch && req.method === 'PATCH') {
+        const updated = taskStore.toggle(toggleMatch[1], user.id);
+        if (!updated) {
+          sendJson(res, 404, { error: 'Task not found' });
+          return;
+        }
+        sendJson(res, 200, updated);
+        return;
+      }
+
+      const deleteMatch = url.pathname.match(/^\/api\/tasks\/([^/]+)$/);
+      if (deleteMatch && req.method === 'DELETE') {
+        const removed = taskStore.remove(deleteMatch[1], user.id);
+        if (!removed) {
+          sendJson(res, 404, { error: 'Task not found' });
+          return;
+        }
+        res.writeHead(204);
+        res.end();
+        return;
+      }
+
+      sendJson(res, 404, { error: 'Not found' });
       return;
     }
 
