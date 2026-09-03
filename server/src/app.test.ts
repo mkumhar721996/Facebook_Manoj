@@ -1,5 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { randomBytes } from 'node:crypto';
 import { createApp } from './app.ts';
 import { TaskRepository } from './tasks/taskRepository.ts';
 import { UserStore } from './auth/userStore.ts';
@@ -7,9 +8,13 @@ import { createSessionToken } from './auth/session.ts';
 import { DEFAULT_TEST_USER_ID, makeTask } from './testing/taskFactory.ts';
 import type { Task } from './tasks/task.types.ts';
 
+function randomTestCredential(): string {
+  return randomBytes(16).toString('hex');
+}
+
 const USER = DEFAULT_TEST_USER_ID;
 const USERNAME = 'test-user';
-const PASSWORD = 'correct-horse-battery-staple';
+const PASSWORD = randomTestCredential();
 
 function makeUserStore(): UserStore {
   const userStore = new UserStore();
@@ -251,7 +256,7 @@ test('POST /api/login with an incorrect password returns 401', async () => {
     const response = await fetch(`${baseUrl}/api/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: USERNAME, password: 'wrong-password' }),
+      body: JSON.stringify({ username: USERNAME, password: randomTestCredential() }),
     });
     assert.equal(response.status, 401);
   });

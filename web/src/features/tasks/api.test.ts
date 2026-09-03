@@ -1,7 +1,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { randomBytes } from 'node:crypto';
 import { fetchTasks, login } from './api.ts';
 import { getAuthToken, setAuthToken } from './authToken.ts';
+
+function randomTestCredential(): string {
+  return randomBytes(16).toString('hex');
+}
 
 function stubFetch(handler: (url: string, options?: RequestInit) => unknown): () => void {
   const originalFetch = globalThis.fetch;
@@ -91,13 +96,14 @@ test('login: posts credentials, stores the returned token, and returns it', asyn
     return { token: 'issued-token' };
   });
 
+  const credential = randomTestCredential();
   try {
-    const token = await login('alice', 'hunter2');
+    const token = await login('alice', credential);
     assert.equal(capturedUrl, '/api/login');
     assert.equal(capturedOptions?.method, 'POST');
     assert.deepEqual(JSON.parse(capturedOptions?.body as string), {
       username: 'alice',
-      password: 'hunter2',
+      password: credential,
     });
     assert.equal(token, 'issued-token');
     assert.equal(getAuthToken(), 'issued-token');
