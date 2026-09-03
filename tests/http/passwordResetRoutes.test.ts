@@ -11,6 +11,7 @@ import { createApp } from "../../src/http/app.ts";
 
 const RESET_TOKEN_TTL_MS = 60 * 60 * 1000;
 const APP_BASE_URL = "http://localhost:3000";
+const STRONG_TEST_CREDENTIAL = "NewStrongPass1";
 
 async function startServer() {
   const userRepository = new InMemoryUserRepository([
@@ -69,7 +70,7 @@ test("POST /password-reset/confirm with a valid token and strong password redire
     const response = await fetch(`${baseUrl}/password-reset/confirm`, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ token, newPassword: "NewStrongPass1" }),
+      body: JSON.stringify({ token, newPassword: STRONG_TEST_CREDENTIAL }),
     });
 
     assert.equal(response.status, 200);
@@ -90,7 +91,7 @@ test("POST /password-reset/confirm with an expired token returns an error and do
     const response = await fetch(`${baseUrl}/password-reset/confirm`, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ token, newPassword: "NewStrongPass1" }),
+      body: JSON.stringify({ token, newPassword: STRONG_TEST_CREDENTIAL }),
     });
 
     assert.equal(response.status, 400);
