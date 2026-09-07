@@ -54,3 +54,21 @@ test("AC2: an open restaurant retains its order affordance", () => {
 
   assert.match(html, /<button[^>]*>[^<]*order[^<]*<\/button>/i);
 });
+
+test("security: restaurant name is HTML-escaped to prevent XSS", () => {
+  const html = renderRestaurantCard(
+    makeRestaurant({ name: `<img src=x onerror="alert('xss')">` })
+  );
+
+  assert.doesNotMatch(html, /<img/i);
+  assert.match(html, /&lt;img/);
+});
+
+test("security: restaurant cuisine is HTML-escaped to prevent XSS", () => {
+  const html = renderRestaurantCard(
+    makeRestaurant({ cuisine: `<script>alert('xss')</script>` })
+  );
+
+  assert.doesNotMatch(html, /<script>/i);
+  assert.match(html, /&lt;script&gt;/);
+});

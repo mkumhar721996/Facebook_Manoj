@@ -11,6 +11,18 @@ function isUnavailable(
   return status === "closed" || status === "paused";
 }
 
+const HTML_ESCAPES: Record<string, string> = {
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  '"': "&quot;",
+  "'": "&#39;",
+};
+
+function escapeHtml(text: string): string {
+  return text.replace(/[&<>"']/g, (char) => HTML_ESCAPES[char]);
+}
+
 export function renderRestaurantCard(restaurant: Restaurant): string {
   const unavailable = isUnavailable(restaurant.status);
   const cardClass = unavailable
@@ -27,8 +39,8 @@ export function renderRestaurantCard(restaurant: Restaurant): string {
 
   return (
     `<article class="${cardClass}" data-status="${restaurant.status}">` +
-    `<h3 class="restaurant-card__name">${restaurant.name}</h3>` +
-    `<p class="restaurant-card__cuisine">${restaurant.cuisine}</p>` +
+    `<h3 class="restaurant-card__name">${escapeHtml(restaurant.name)}</h3>` +
+    `<p class="restaurant-card__cuisine">${escapeHtml(restaurant.cuisine)}</p>` +
     badge +
     orderAction +
     `</article>`
