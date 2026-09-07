@@ -92,6 +92,21 @@ test("error state is an announced assertive live region (a11y, WCAG 4.1.3)", () 
   assert.match(html, /data-testid="error-state"[^>]*aria-live="assertive"/);
 });
 
+test("successful results are announced via a status live region (a11y, WCAG 4.1.3)", () => {
+  const state = reduce(createInitialState(), {
+    type: "FETCH_SUCCESS",
+    restaurants: [
+      { id: "1", name: "Golden Dragon", cuisineType: "Chinese", averageRating: 4.5, estimatedDeliveryMinutes: 30 },
+      { id: "2", name: "Taco Fiesta", cuisineType: "Mexican", averageRating: null, estimatedDeliveryMinutes: 25 },
+    ],
+  });
+  const html = renderApp(state);
+
+  assert.match(html, /data-testid="results-announcement"[^>]*role="status"/);
+  assert.match(html, /data-testid="results-announcement"[^>]*aria-live="polite"/);
+  assert.match(html, /Found 2 restaurants/);
+});
+
 test("empty state is an announced status live region (a11y, WCAG 4.1.3)", () => {
   const state = reduce(createInitialState({ search: "nonexistent" }), {
     type: "FETCH_SUCCESS",

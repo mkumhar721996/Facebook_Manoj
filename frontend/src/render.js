@@ -76,8 +76,14 @@ function renderEmptyState() {
   `;
 }
 
+function renderResultsAnnouncement(count) {
+  const message = count === 1 ? "Found 1 restaurant" : `Found ${count} restaurants`;
+  return `<div data-testid="results-announcement" role="status" aria-live="polite">${message}</div>`;
+}
+
 function renderRestaurantList(restaurants) {
   return `
+    ${renderResultsAnnouncement(restaurants.length)}
     <ul data-testid="restaurant-list">
       ${restaurants.map(renderRestaurantCard).join("")}
     </ul>

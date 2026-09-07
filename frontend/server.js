@@ -4,8 +4,17 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const webPort = process.env.ARC_WEB_PORT || 3008;
-const backendPort = process.env.ARC_DEV_PORT || 8008;
+
+export function parsePort(value, fallback) {
+  const port = Number(value);
+  if (value === undefined || !Number.isInteger(port) || port < 0 || port > 65535) {
+    return fallback;
+  }
+  return port;
+}
+
+const webPort = parsePort(process.env.ARC_WEB_PORT, 3008);
+const backendPort = parsePort(process.env.ARC_DEV_PORT, 8008);
 const backendBaseUrl = `http://localhost:${backendPort}`;
 
 const contentTypes = {
@@ -32,20 +41,48 @@ export function resolveFilePath(pathname) {
   return resolved;
 }
 
-export function createServer() {
+export function createServer({
+  logger = console,
+  statImpl = fs.statSync,
+  readFileImpl = fs.readFileSync,
+} = {}) {
   return http.createServer((req, res) => {
     const url = new URL(req.url, "http://localhost");
     const filePath = resolveFilePath(url.pathname);
 
-    if (!filePath || !fs.existsSync(filePath) || !fs.statSync(filePath).isFile()) {
+    let stat;
+    try {
+      stat = filePath ? statImpl(filePath) : null;
+    } catch (error) {
+      if (error.code === "ENOENT") {
+        res.writeHead(404, { "Content-Type": "text/plain" });
+        res.end("Not found");
+        return;
+      }
+      logger.error({ event: "static_file_stat_failed", path: url.pathname, error: error.message });
+      res.writeHead(500, { "Content-Type": "text/plain" });
+      res.end("Internal server error");
+      return;
+    }
+
+    if (!filePath || !stat || !stat.isFile()) {
       res.writeHead(404, { "Content-Type": "text/plain" });
       res.end("Not found");
       return;
     }
 
-    let contents = fs.readFileSync(filePath, "utf-8");
+    let contents;
+    try {
+      contents = readFileImpl(filePath, "utf-8");
+    } catch (error) {
+      logger.error({ event: "static_file_read_failed", path: url.pathname, error: error.message });
+      res.writeHead(500, { "Content-Type": "text/plain" });
+      res.end("Internal server error");
+      return;
+    }
+
     if (filePath.endsWith("index.html")) {
-      contents = contents.replace("%%BACKEND_BASE_URL%%", backendBaseUrl);
+      contents = contents.replace("%%BACKEND_BASE_URL%%", JSON.stringify(backendBaseUrl));
     }
 
     const ext = path.extname(filePath);
