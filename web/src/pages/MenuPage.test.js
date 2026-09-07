@@ -108,7 +108,7 @@ test("logs the error and increments a failure counter when the menu fetch fails"
   assert.equal(logCalls.length, 1);
   assert.equal(logCalls[0].fields.restaurantId, "open-burger-shack");
   assert.equal(logCalls[0].fields.error, "network error");
-  assert.equal(getCounter("menu_load_failures_total", { restaurantId: "open-burger-shack" }), 1);
+  assert.equal(getCounter("menu_load_failures_total"), 1);
 });
 
 test("AC3: shows a generic error message with a retry option when the fetch fails, and retrying re-fetches the menu", async () => {

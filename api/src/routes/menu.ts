@@ -20,7 +20,7 @@ export function getMenuResponse(store: MenuStore, restaurantId: string): MenuRes
       restaurantId,
       error: error instanceof Error ? error.message : String(error),
     });
-    incrementCounter("menu_fetch_failures_total", { restaurantId });
+    incrementCounter("menu_fetch_failures_total");
     return { status: 500, body: { error: "Failed to load menu" } };
   }
 

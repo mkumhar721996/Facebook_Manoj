@@ -82,7 +82,7 @@ test("logs the error and increments a failure counter when the underlying data s
   assert.equal(logged.level, "error");
   assert.equal(logged.restaurantId, "open-burger-shack");
   assert.equal(logged.error, "data source unavailable");
-  assert.equal(getCounter("menu_fetch_failures_total", { restaurantId: "open-burger-shack" }), 1);
+  assert.equal(getCounter("menu_fetch_failures_total"), 1);
 });
 
 test("GET /restaurants/:id/menu returns 200 with real menu data for a known restaurant id", async () => {

@@ -60,7 +60,7 @@ export class MenuPageController {
         restaurantId: this.restaurantId,
         error: error instanceof Error ? error.message : String(error),
       });
-      this.incrementCounter("menu_load_failures_total", { restaurantId: this.restaurantId });
+      this.incrementCounter("menu_load_failures_total");
       this.setState({ status: "error" });
     }
   }
