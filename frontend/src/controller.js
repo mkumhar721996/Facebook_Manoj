@@ -9,6 +9,7 @@ export function createController({
   initialSearch = "",
   onStateChange,
   onUrlChange,
+  logger = console,
 }) {
   let state = createInitialState(parseFiltersFromSearch(initialSearch));
 
@@ -24,9 +25,19 @@ export function createController({
   async function load() {
     setState(reduce(state, { type: "FETCH_START" }));
     try {
-      const restaurants = await fetchRestaurants(state, { fetchImpl, baseUrl });
+      const restaurants = await fetchRestaurants(state, { fetchImpl, baseUrl, logger });
       setState(reduce(state, { type: "FETCH_SUCCESS", restaurants }));
     } catch (error) {
+      logger.error({
+        event: "restaurant_search_failed",
+        filters: {
+          search: state.search,
+          cuisine: state.cuisine,
+          minRating: state.minRating,
+          maxDeliveryMinutes: state.maxDeliveryMinutes,
+        },
+        error,
+      });
       setState(reduce(state, { type: "FETCH_ERROR" }));
     }
   }

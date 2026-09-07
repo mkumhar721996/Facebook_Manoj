@@ -11,11 +11,24 @@ function sendJson(res, statusCode, payload) {
   res.end(body);
 }
 
-export function createServer() {
+export function createMetrics() {
+  return {
+    requestCount: 0,
+    errorCount: 0,
+    totalDurationMs: 0,
+  };
+}
+
+export function createServer({
+  logger = console,
+  metrics = createMetrics(),
+  listRestaurantsImpl = listRestaurants,
+} = {}) {
   return http.createServer((req, res) => {
     const url = new URL(req.url, "http://localhost");
 
     if (req.method === "GET" && url.pathname === "/api/restaurants") {
+      const startedAt = Date.now();
       const search = url.searchParams.get("search") || undefined;
       const cuisine = url.searchParams.get("cuisine") || undefined;
       const minRatingParam = url.searchParams.get("minRating");
@@ -23,14 +36,30 @@ export function createServer() {
       const minRating = minRatingParam !== null ? Number(minRatingParam) : undefined;
       const maxDeliveryMinutes =
         maxDeliveryParam !== null ? Number(maxDeliveryParam) : undefined;
+      const filters = { search, cuisine, minRating, maxDeliveryMinutes };
 
-      const result = listRestaurants(restaurants, {
-        search,
-        cuisine,
-        minRating,
-        maxDeliveryMinutes,
-      });
-      sendJson(res, 200, { restaurants: result });
+      metrics.requestCount += 1;
+
+      try {
+        const result = listRestaurantsImpl(restaurants, filters);
+        const durationMs = Date.now() - startedAt;
+        metrics.totalDurationMs += durationMs;
+        logger.info({ event: "http_request", path: url.pathname, filters, status: 200, durationMs });
+        sendJson(res, 200, { restaurants: result });
+      } catch (error) {
+        const durationMs = Date.now() - startedAt;
+        metrics.totalDurationMs += durationMs;
+        metrics.errorCount += 1;
+        logger.error({
+          event: "http_request_error",
+          path: url.pathname,
+          filters,
+          status: 500,
+          durationMs,
+          error: error.message,
+        });
+        sendJson(res, 500, { message: "Failed to load restaurants" });
+      }
       return;
     }
 

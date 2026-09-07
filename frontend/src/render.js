@@ -24,8 +24,10 @@ function renderRestaurantCard(restaurant) {
 
 function renderSearchBar(state) {
   return `
+    <label for="search-input">Search</label>
     <input
       type="text"
+      id="search-input"
       data-testid="search-input"
       placeholder="Search by name or cuisine"
       value="${escapeHtml(state.search)}"
@@ -36,13 +38,16 @@ function renderSearchBar(state) {
 function renderFilterPanel(state) {
   return `
     <div data-testid="filter-panel">
-      <input type="text" data-testid="cuisine-filter" placeholder="Cuisine" value="${escapeHtml(
+      <label for="cuisine-filter">Cuisine</label>
+      <input type="text" id="cuisine-filter" data-testid="cuisine-filter" placeholder="Cuisine" value="${escapeHtml(
         state.cuisine
       )}" />
-      <input type="number" data-testid="min-rating-filter" placeholder="Minimum rating" value="${
+      <label for="min-rating-filter">Minimum rating</label>
+      <input type="number" id="min-rating-filter" data-testid="min-rating-filter" placeholder="Minimum rating" value="${
         state.minRating ?? ""
       }" />
-      <input type="number" data-testid="max-delivery-filter" placeholder="Max delivery minutes" value="${
+      <label for="max-delivery-filter">Max delivery minutes</label>
+      <input type="number" id="max-delivery-filter" data-testid="max-delivery-filter" placeholder="Max delivery minutes" value="${
         state.maxDeliveryMinutes ?? ""
       }" />
     </div>
@@ -50,12 +55,12 @@ function renderFilterPanel(state) {
 }
 
 function renderLoadingIndicator() {
-  return `<div data-testid="loading-indicator">Loading restaurants...</div>`;
+  return `<div data-testid="loading-indicator" role="status" aria-live="polite">Loading restaurants...</div>`;
 }
 
 function renderErrorState() {
   return `
-    <div data-testid="error-state">
+    <div data-testid="error-state" role="alert" aria-live="assertive">
       <p>Something went wrong. Please try again.</p>
       <button type="button" data-action="retry">Retry</button>
     </div>
@@ -64,7 +69,7 @@ function renderErrorState() {
 
 function renderEmptyState() {
   return `
-    <div data-testid="empty-state">
+    <div data-testid="empty-state" role="status" aria-live="polite">
       <p>No results found</p>
       <button type="button" data-action="clear-filters">Clear filters</button>
     </div>

@@ -98,3 +98,27 @@ test("a failed fetch sets an error state, and retry() re-issues the request (AC8
   assert.equal(controller.getState().status, "success");
   assert.deepEqual(controller.getState().restaurants, [{ id: "1" }]);
 });
+
+test("logs the caught fetch error with the active filters as context (observability)", async () => {
+  const fetchError = new Error("network down");
+  const fetchImpl = makeFetchQueue([{ error: fetchError }]);
+  const errorCalls = [];
+  const logger = { error: (...args) => errorCalls.push(args) };
+
+  const controller = createController({
+    fetchImpl,
+    baseUrl: "http://localhost:8008",
+    initialSearch: "?search=tacos&cuisine=Mexican",
+    onStateChange: () => {},
+    onUrlChange: () => {},
+    logger,
+  });
+
+  await controller.load();
+
+  assert.equal(errorCalls.length, 1);
+  const [entry] = errorCalls[0];
+  assert.equal(entry.filters.search, "tacos");
+  assert.equal(entry.filters.cuisine, "Mexican");
+  assert.equal(entry.error, fetchError);
+});

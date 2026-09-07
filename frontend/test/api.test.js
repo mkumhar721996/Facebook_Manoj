@@ -55,3 +55,25 @@ test("throws when the backend responds with a non-ok status (AC8)", async () => 
     fetchRestaurants({}, { fetchImpl: fakeFetch, baseUrl: "http://localhost:8008" })
   );
 });
+
+test("logs the response status and body before throwing on a non-ok response (observability)", async () => {
+  const fakeFetch = async () => ({
+    ok: false,
+    status: 503,
+    json: async () => ({ message: "upstream unavailable" }),
+  });
+  const errorCalls = [];
+  const logger = { error: (...args) => errorCalls.push(args) };
+
+  await assert.rejects(() =>
+    fetchRestaurants(
+      {},
+      { fetchImpl: fakeFetch, baseUrl: "http://localhost:8008", logger }
+    )
+  );
+
+  assert.equal(errorCalls.length, 1);
+  const [entry] = errorCalls[0];
+  assert.equal(entry.status, 503);
+  assert.deepEqual(entry.body, { message: "upstream unavailable" });
+});

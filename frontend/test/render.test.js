@@ -62,3 +62,43 @@ test("shows a generic error message with a retry action when the fetch fails (AC
   assert.doesNotMatch(html, /No results found/);
   assert.match(html, /data-action="retry"/);
 });
+
+test("search input and every filter input have an accessible label (a11y, WCAG 1.3.1)", () => {
+  const html = renderApp(createInitialState());
+
+  assert.match(html, /<label[^>]*for="search-input"/);
+  assert.match(html, /id="search-input"/);
+  assert.match(html, /<label[^>]*for="cuisine-filter"/);
+  assert.match(html, /id="cuisine-filter"/);
+  assert.match(html, /<label[^>]*for="min-rating-filter"/);
+  assert.match(html, /id="min-rating-filter"/);
+  assert.match(html, /<label[^>]*for="max-delivery-filter"/);
+  assert.match(html, /id="max-delivery-filter"/);
+});
+
+test("loading indicator is an announced status live region (a11y, WCAG 4.1.3)", () => {
+  const state = reduce(createInitialState(), { type: "FETCH_START" });
+  const html = renderApp(state);
+
+  assert.match(html, /data-testid="loading-indicator"[^>]*role="status"/);
+  assert.match(html, /data-testid="loading-indicator"[^>]*aria-live="polite"/);
+});
+
+test("error state is an announced assertive live region (a11y, WCAG 4.1.3)", () => {
+  const state = reduce(createInitialState(), { type: "FETCH_ERROR" });
+  const html = renderApp(state);
+
+  assert.match(html, /data-testid="error-state"[^>]*role="alert"/);
+  assert.match(html, /data-testid="error-state"[^>]*aria-live="assertive"/);
+});
+
+test("empty state is an announced status live region (a11y, WCAG 4.1.3)", () => {
+  const state = reduce(createInitialState({ search: "nonexistent" }), {
+    type: "FETCH_SUCCESS",
+    restaurants: [],
+  });
+  const html = renderApp(state);
+
+  assert.match(html, /data-testid="empty-state"[^>]*role="status"/);
+  assert.match(html, /data-testid="empty-state"[^>]*aria-live="polite"/);
+});
