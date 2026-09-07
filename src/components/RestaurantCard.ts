@@ -38,7 +38,7 @@ export function renderRestaurantCard(restaurant: Restaurant): string {
     : `<button class="restaurant-card__order-button">Order now</button>`;
 
   return (
-    `<article class="${cardClass}" data-status="${restaurant.status}">` +
+    `<article class="${cardClass}" data-status="${escapeHtml(restaurant.status)}">` +
     `<h3 class="restaurant-card__name">${escapeHtml(restaurant.name)}</h3>` +
     `<p class="restaurant-card__cuisine">${escapeHtml(restaurant.cuisine)}</p>` +
     badge +
