@@ -1,0 +1,12 @@
+{
+  "name": "facebook-manoj",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": ["api", "web"],
+  "scripts": {
+    "test:api": "npm --prefix api test",
+    "test:web": "npm --prefix web test",
+    "start:api": "npm --prefix api start",
+    "start:web": "npm --prefix web start"
+  }
+}
