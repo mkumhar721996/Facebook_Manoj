@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { MenuPageController, renderMenuPage, GENERIC_ERROR_MESSAGE } from "./MenuPage.js";
+import { getCounter, resetMetrics } from "../observability/metrics.js";
 
 /** @type {import("../api/menuClient.js").MenuItem[]} */
 const fixtureItems = [
@@ -69,6 +70,45 @@ test("AC2: shows a loading indicator while the menu fetch is pending, and hides 
 
   assert.equal(controller.state.status, "success");
   assert.ok(!renderMenuPage(controller.state).includes('data-testid="menu-loading"'));
+});
+
+test("renders a top-level heading in every state so screen reader users can establish page structure", async () => {
+  const client = { getMenu: async () => fixtureItems };
+  const controller = new MenuPageController(client, "open-burger-shack");
+
+  assert.ok(renderMenuPage(controller.state).includes("<h1>Menu</h1>"), "loading state should include an h1");
+
+  await controller.load();
+  assert.ok(renderMenuPage(controller.state).includes("<h1>Menu</h1>"), "success state should include an h1");
+
+  const failingController = new MenuPageController({ getMenu: async () => { throw new Error("boom"); } }, "open-burger-shack");
+  await failingController.load();
+  assert.ok(renderMenuPage(failingController.state).includes("<h1>Menu</h1>"), "error state should include an h1");
+});
+
+test("announces the error state to assistive technology via role=alert", async () => {
+  const client = { getMenu: async () => { throw new Error("network error"); } };
+  const controller = new MenuPageController(client, "open-burger-shack");
+
+  await controller.load();
+
+  assert.ok(renderMenuPage(controller.state).includes('role="alert"'));
+});
+
+test("logs the error and increments a failure counter when the menu fetch fails", async () => {
+  resetMetrics();
+  const logCalls = [];
+  const client = { getMenu: async () => { throw new Error("network error"); } };
+  const controller = new MenuPageController(client, "open-burger-shack", {
+    logError: (message, fields) => logCalls.push({ message, fields }),
+  });
+
+  await controller.load();
+
+  assert.equal(logCalls.length, 1);
+  assert.equal(logCalls[0].fields.restaurantId, "open-burger-shack");
+  assert.equal(logCalls[0].fields.error, "network error");
+  assert.equal(getCounter("menu_load_failures_total", { restaurantId: "open-burger-shack" }), 1);
 });
 
 test("AC3: shows a generic error message with a retry option when the fetch fails, and retrying re-fetches the menu", async () => {

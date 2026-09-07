@@ -1,4 +1,6 @@
 import type { MenuItem } from "../data/menuStore.ts";
+import { logError } from "../observability/logger.ts";
+import { incrementCounter } from "../observability/metrics.ts";
 
 export interface MenuStore {
   getMenu(restaurantId: string): MenuItem[] | undefined;
@@ -13,7 +15,12 @@ export function getMenuResponse(store: MenuStore, restaurantId: string): MenuRes
   let items: MenuItem[] | undefined;
   try {
     items = store.getMenu(restaurantId);
-  } catch {
+  } catch (error) {
+    logError("Failed to load menu from data store", {
+      restaurantId,
+      error: error instanceof Error ? error.message : String(error),
+    });
+    incrementCounter("menu_fetch_failures_total", { restaurantId });
     return { status: 500, body: { error: "Failed to load menu" } };
   }
 

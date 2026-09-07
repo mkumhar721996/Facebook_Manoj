@@ -7,10 +7,12 @@
  * Fetches the menu for a restaurant from the API.
  * @param {string} restaurantId
  * @param {string} [baseUrl]
+ * @param {string} [traceId]
  * @returns {Promise<MenuItem[]>}
  */
-export async function getMenu(restaurantId, baseUrl = "") {
-  const response = await fetch(`${baseUrl}/restaurants/${encodeURIComponent(restaurantId)}/menu`);
+export async function getMenu(restaurantId, baseUrl = "", traceId) {
+  const headers = traceId ? { "X-Trace-ID": traceId } : undefined;
+  const response = await fetch(`${baseUrl}/restaurants/${encodeURIComponent(restaurantId)}/menu`, { headers });
 
   if (!response.ok) {
     throw new Error(`Failed to load menu: ${response.status}`);

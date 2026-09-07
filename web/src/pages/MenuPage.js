@@ -1,3 +1,6 @@
+import { logError as defaultLogError } from "../observability/logger.js";
+import { incrementCounter as defaultIncrementCounter } from "../observability/metrics.js";
+
 /**
  * @typedef {import("../api/menuClient.js").MenuItem} MenuItem
  * @typedef {import("../api/menuClient.js").CustomisationOption} CustomisationOption
@@ -6,6 +9,7 @@
  * @typedef {{ status: "success", items: MenuItem[] }} SuccessState
  * @typedef {LoadingState | ErrorState | SuccessState} MenuPageState
  * @typedef {{ getMenu(restaurantId: string): Promise<MenuItem[]> }} MenuClient
+ * @typedef {{ logError?: typeof defaultLogError, incrementCounter?: typeof defaultIncrementCounter }} MenuPageDependencies
  */
 
 export const GENERIC_ERROR_MESSAGE = "Something went wrong loading the menu. Please try again.";
@@ -16,10 +20,13 @@ export class MenuPageController {
   /**
    * @param {MenuClient} client
    * @param {string} restaurantId
+   * @param {MenuPageDependencies} [dependencies]
    */
-  constructor(client, restaurantId) {
+  constructor(client, restaurantId, dependencies = {}) {
     this.client = client;
     this.restaurantId = restaurantId;
+    this.logError = dependencies.logError ?? defaultLogError;
+    this.incrementCounter = dependencies.incrementCounter ?? defaultIncrementCounter;
     /** @type {MenuPageState} */
     this.state = { status: "loading" };
     /** @type {Array<(state: MenuPageState) => void>} */
@@ -48,7 +55,12 @@ export class MenuPageController {
     try {
       const items = await this.client.getMenu(this.restaurantId);
       this.setState({ status: "success", items });
-    } catch {
+    } catch (error) {
+      this.logError("Failed to load menu from API", {
+        restaurantId: this.restaurantId,
+        error: error instanceof Error ? error.message : String(error),
+      });
+      this.incrementCounter("menu_load_failures_total", { restaurantId: this.restaurantId });
       this.setState({ status: "error" });
     }
   }
@@ -64,17 +76,17 @@ export class MenuPageController {
  */
 export function renderMenuPage(state) {
   if (state.status === "loading") {
-    return `<div role="status" data-testid="menu-loading">Loading menu…</div>`;
+    return `<h1>Menu</h1><div role="status" data-testid="menu-loading">Loading menu…</div>`;
   }
 
   if (state.status === "error") {
-    return `<div data-testid="menu-error">
+    return `<h1>Menu</h1><div role="alert" data-testid="menu-error">
       <p>${GENERIC_ERROR_MESSAGE}</p>
       <button type="button" data-testid="menu-retry" data-action-id="${RETRY_ACTION_ID}">Retry</button>
     </div>`;
   }
 
-  return `<ul data-testid="menu-items">${state.items.map(renderMenuItem).join("")}</ul>`;
+  return `<h1>Menu</h1><ul data-testid="menu-items">${state.items.map(renderMenuItem).join("")}</ul>`;
 }
 
 /**
@@ -83,7 +95,7 @@ export function renderMenuPage(state) {
  */
 function renderMenuItem(item) {
   return `<li data-testid="menu-item" data-item-id="${escapeHtml(item.id)}">
-    <h3>${escapeHtml(item.name)}</h3>
+    <h2>${escapeHtml(item.name)}</h2>
     <p>${escapeHtml(item.description)}</p>
     <span data-testid="menu-item-price">$${item.price.toFixed(2)}</span>
     <ul data-testid="menu-item-customisations">${item.customisationOptions

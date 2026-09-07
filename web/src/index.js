@@ -7,8 +7,15 @@ function getRestaurantIdFromLocation() {
   return new URLSearchParams(window.location.search).get("restaurantId") ?? "open-burger-shack";
 }
 
+function generateTraceId() {
+  return typeof crypto !== "undefined" && crypto.randomUUID
+    ? crypto.randomUUID()
+    : `trace-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
 function mountMenuPage(container, restaurantId) {
-  const client = { getMenu: (id) => getMenu(id, API_BASE_URL) };
+  const traceId = generateTraceId();
+  const client = { getMenu: (id) => getMenu(id, API_BASE_URL, traceId) };
   const controller = new MenuPageController(client, restaurantId);
 
   controller.subscribe((state) => {
