@@ -1,4 +1,5 @@
 import { createController } from "./controller.js";
+import { FIELD_BINDINGS } from "./fieldBindings.js";
 
 const root = document.getElementById("root");
 const backendBaseUrl = window.__BACKEND_BASE_URL__ || window.location.origin;
@@ -19,23 +20,12 @@ function render() {
 }
 
 function attachHandlers() {
-  root.querySelector('[data-testid="search-input"]').addEventListener("input", (event) => {
-    controller.setSearch(event.target.value);
-  });
-
-  root.querySelector('[data-testid="cuisine-filter"]').addEventListener("change", (event) => {
-    controller.setCuisine(event.target.value);
-  });
-
-  root.querySelector('[data-testid="min-rating-filter"]').addEventListener("change", (event) => {
-    const value = event.target.value === "" ? null : Number(event.target.value);
-    controller.setMinRating(value);
-  });
-
-  root.querySelector('[data-testid="max-delivery-filter"]').addEventListener("change", (event) => {
-    const value = event.target.value === "" ? null : Number(event.target.value);
-    controller.setMaxDeliveryMinutes(value);
-  });
+  for (const binding of FIELD_BINDINGS) {
+    const element = root.querySelector(`[data-testid="${binding.testId}"]`);
+    element.addEventListener(binding.event, (event) => {
+      controller[binding.action](binding.parse(event.target.value));
+    });
+  }
 
   const retryButton = root.querySelector('[data-action="retry"]');
   if (retryButton) {

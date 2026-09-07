@@ -14,14 +14,22 @@ const contentTypes = {
   ".css": "text/css",
 };
 
-function resolveFilePath(pathname) {
+const SRC_ROOT = path.join(__dirname, "src");
+
+export function resolveFilePath(pathname) {
   if (pathname === "/" || pathname === "/index.html") {
     return path.join(__dirname, "public", "index.html");
   }
-  if (pathname.startsWith("/src/")) {
-    return path.join(__dirname, pathname);
+  if (!pathname.startsWith("/src/")) {
+    return null;
   }
-  return null;
+
+  const relative = pathname.slice("/src/".length);
+  const resolved = path.resolve(SRC_ROOT, relative);
+  if (resolved !== SRC_ROOT && !resolved.startsWith(SRC_ROOT + path.sep)) {
+    return null;
+  }
+  return resolved;
 }
 
 export function createServer() {
