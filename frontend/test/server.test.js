@@ -48,6 +48,13 @@ test("rejects traversal that targets sibling project files like backend package.
   });
 });
 
+test("returns 404 instead of crashing when a directory path is requested (security fix, frontend/server.js:46)", async () => {
+  await withServer(async (baseUrl) => {
+    const response = await fetch(`${baseUrl}/src/`);
+    assert.equal(response.status, 404);
+  });
+});
+
 test("resolveFilePath never returns a path outside the frontend directory, even given an already-traversed pathname (security fix, frontend/server.js:22)", () => {
   const escapePayload = "/src/" + "../".repeat(6) + "etc/passwd";
   const resolved = resolveFilePath(escapePayload);

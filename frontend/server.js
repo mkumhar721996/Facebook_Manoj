@@ -37,7 +37,7 @@ export function createServer() {
     const url = new URL(req.url, "http://localhost");
     const filePath = resolveFilePath(url.pathname);
 
-    if (!filePath || !fs.existsSync(filePath)) {
+    if (!filePath || !fs.existsSync(filePath) || !fs.statSync(filePath).isFile()) {
       res.writeHead(404, { "Content-Type": "text/plain" });
       res.end("Not found");
       return;
