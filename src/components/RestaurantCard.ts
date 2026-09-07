@@ -29,7 +29,7 @@ export function renderRestaurantCard(restaurant: Restaurant): string {
     ? "restaurant-card restaurant-card--closed"
     : "restaurant-card restaurant-card--open";
 
-  const badge = unavailable
+  const badge = isUnavailable(restaurant.status)
     ? `<span class="restaurant-card__badge restaurant-card__badge--closed">${CLOSED_LABELS[restaurant.status]}</span>`
     : "";
 
