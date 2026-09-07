@@ -27,8 +27,9 @@ export function createServer({
   return http.createServer((req, res) => {
     const url = new URL(req.url, "http://localhost");
 
+    const startedAt = Date.now();
+
     if (req.method === "GET" && url.pathname === "/api/restaurants") {
-      const startedAt = Date.now();
       const search = url.searchParams.get("search") || undefined;
       const cuisine = url.searchParams.get("cuisine") || undefined;
       const minRatingParam = url.searchParams.get("minRating");
@@ -63,6 +64,14 @@ export function createServer({
       return;
     }
 
+    const durationMs = Date.now() - startedAt;
+    metrics.errorCount += 1;
+    logger.error({
+      event: "http_request_error",
+      path: url.pathname,
+      status: 404,
+      durationMs,
+    });
     sendJson(res, 404, { message: "Not found" });
   });
 }

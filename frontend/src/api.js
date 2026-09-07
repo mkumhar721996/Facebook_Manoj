@@ -13,7 +13,9 @@ export async function fetchRestaurants(
     url.searchParams.set("maxDeliveryMinutes", String(filters.maxDeliveryMinutes));
   }
 
+  const startedAt = Date.now();
   const response = await fetchImpl(url.toString(), { headers: {} });
+  const durationMs = Date.now() - startedAt;
 
   if (!response.ok) {
     let body;
@@ -22,10 +24,11 @@ export async function fetchRestaurants(
     } catch {
       body = undefined;
     }
-    logger.error({ event: "restaurant_fetch_failed", status: response.status, body });
+    logger.error({ event: "restaurant_fetch_failed", status: response.status, body, durationMs });
     throw new Error("Failed to fetch restaurants");
   }
 
   const body = await response.json();
+  logger.info({ event: "restaurant_fetch_succeeded", status: response.status, durationMs });
   return body.restaurants;
 }

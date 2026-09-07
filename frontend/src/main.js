@@ -22,6 +22,7 @@ function render() {
 function attachHandlers() {
   for (const binding of FIELD_BINDINGS) {
     const element = root.querySelector(`[data-testid="${binding.testId}"]`);
+    if (!element) continue;
     element.addEventListener(binding.event, (event) => {
       controller[binding.action](binding.parse(event.target.value));
     });
