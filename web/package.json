@@ -1,0 +1,11 @@
+{
+  "name": "web",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Web front end for Facebook_Manoj",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test"
+  }
+}
