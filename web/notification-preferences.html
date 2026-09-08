@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Notification Preferences</title>
+  <link rel="stylesheet" href="/docs/design/tokens.css" />
+  <link rel="stylesheet" href="/docs/design/prototype-utils.css" />
+  <link rel="stylesheet" href="notification-preferences.css" />
+</head>
+<body>
+  <main class="u-stack u-gap-4 u-p-4">
+    <h1 class="text-xl text-bold">Notification preferences</h1>
+    <form id="notification-preferences-form" class="u-stack u-gap-3">
+      <fieldset
+        class="preference-group"
+        role="radiogroup"
+        aria-labelledby="notification-channel-heading"
+      >
+        <legend id="notification-channel-heading">
+          How should we notify you about order status changes?
+        </legend>
+
+        <div class="preference-option">
+          <input
+            type="radio"
+            id="channel-push"
+            name="notification-channel"
+            value="push"
+          />
+          <label for="channel-push">Push notification</label>
+        </div>
+
+        <div class="preference-option">
+          <input
+            type="radio"
+            id="channel-sms"
+            name="notification-channel"
+            value="sms"
+          />
+          <label for="channel-sms">SMS</label>
+        </div>
+
+        <div class="preference-option">
+          <input
+            type="radio"
+            id="channel-both"
+            name="notification-channel"
+            value="both"
+          />
+          <label for="channel-both">Push and SMS</label>
+        </div>
+      </fieldset>
+
+      <button type="submit" class="btn btn-primary">Save preference</button>
+      <p id="preference-status" class="preference-status" role="status" aria-live="polite"></p>
+    </form>
+  </main>
+  <script src="preferences-logic.js"></script>
+  <script src="notification-preferences.js"></script>
+</body>
+</html>

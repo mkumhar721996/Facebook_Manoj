@@ -1,0 +1,11 @@
+{
+  "name": "facebook-manoj",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Order notifications platform",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "test": "node --test server/__tests__/ web/__tests__/"
+  }
+}
