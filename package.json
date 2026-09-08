@@ -1,0 +1,10 @@
+{
+  "name": "facebook-manoj-checkout",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Checkout delivery address selection",
+  "type": "commonjs",
+  "scripts": {
+    "test": "node --test src"
+  }
+}
