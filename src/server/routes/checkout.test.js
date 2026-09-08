@@ -31,6 +31,8 @@ test("POST place-order with a new address and saveToAccount=true saves the addre
   const response = handler.placeOrder("cust-1", { newAddress: validNewAddress, saveToAccount: true });
 
   assert.equal(response.status, 201);
+  assert.equal(response.body.order.deliveryAddress.line1, validNewAddress.line1);
+  assert.equal(response.body.order.deliveryAddress.city, validNewAddress.city);
   assert.equal(addressService.getSavedAddresses("cust-1").length, 1);
 });
 

@@ -72,4 +72,7 @@ test("submitting a valid form invokes onValid with the address and saveToAccount
   assert.deepEqual(result.state.errors, {});
   assert.equal(receivedSelection.saveToAccount, true);
   assert.equal(receivedSelection.newAddress.line1, "1 Main St");
+  assert.equal(receivedSelection.newAddress.city, "Metropolis");
+  assert.equal(receivedSelection.newAddress.postalCode, "12345");
+  assert.equal(receivedSelection.newAddress.country, "US");
 });

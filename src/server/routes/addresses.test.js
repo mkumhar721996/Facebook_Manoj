@@ -31,3 +31,16 @@ test("GET saved addresses response identifies which address is the default (AC2)
 
   assert.equal(response.body.addresses[0].isDefault, true);
 });
+
+test("GET saved addresses returns 500 when the address service throws", () => {
+  const addressService = {
+    getSavedAddresses() {
+      throw new Error("repository unavailable");
+    },
+  };
+  const handler = createAddressesHandler({ addressService });
+
+  const response = handler.listSavedAddresses("cust-1");
+
+  assert.equal(response.status, 500);
+});

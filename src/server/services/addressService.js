@@ -1,3 +1,5 @@
+const logger = require("../logger");
+
 function createAddressService({ repository }) {
   function getSavedAddresses(customerId) {
     return repository.listByCustomer(customerId);
@@ -11,6 +13,7 @@ function createAddressService({ repository }) {
     if (selection.savedAddressId) {
       const saved = repository.findById(customerId, selection.savedAddressId);
       if (!saved) {
+        logger.warn("Saved address not found", { customerId, savedAddressId: selection.savedAddressId });
         throw new Error(`Saved address ${selection.savedAddressId} not found for customer ${customerId}`);
       }
       return saved;
@@ -20,6 +23,7 @@ function createAddressService({ repository }) {
       return { ...selection.newAddress };
     }
 
+    logger.warn("Checkout selection missing savedAddressId and newAddress", { customerId });
     throw new Error("A savedAddressId or newAddress must be provided");
   }
 

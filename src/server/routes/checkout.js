@@ -1,4 +1,5 @@
 const { ValidationError } = require("../services/checkoutService");
+const logger = require("../logger");
 
 function createCheckoutHandler({ checkoutService }) {
   function placeOrder(customerId, checkoutInput) {
@@ -9,6 +10,11 @@ function createCheckoutHandler({ checkoutService }) {
       if (err instanceof ValidationError) {
         return { status: 400, body: { fieldErrors: err.fieldErrors } };
       }
+      logger.error("Checkout failed", {
+        customerId,
+        savedAddressId: checkoutInput.savedAddressId,
+        error: err.message,
+      });
       throw err;
     }
   }
