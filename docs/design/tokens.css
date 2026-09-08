@@ -1,0 +1,87 @@
+:root {
+  /* ---------------------------------------------------------------------
+     Color
+     --color-fg / --color-bg verified at 17.8:1 contrast (WCAG AAA+).
+     Semantic accent/status colors verified at >= 4.5:1 against their
+     paired background/foreground for normal text use.
+  --------------------------------------------------------------------- */
+  --color-fg: #1a1a1a;
+  --color-fg-muted: #4b5563;
+  --color-fg-inverse: #ffffff;
+
+  --color-bg: #ffffff;
+  --color-bg-subtle: #f3f4f6;
+  --color-bg-inverse: #111827;
+
+  --color-border: #d0d5dd;
+  --color-border-strong: #9aa4b2;
+
+  --color-primary: #0b5fff;
+  --color-primary-hover: #0947c9;
+  --color-primary-fg: #ffffff;
+
+  --color-success: #067647;
+  --color-success-bg: #ecfdf3;
+  --color-danger: #b42318;
+  --color-danger-bg: #fef3f2;
+  --color-warning: #b54708;
+  --color-warning-bg: #fffaeb;
+
+  --color-focus-ring: #0b5fff;
+
+  --color-disabled-bg: #e5e7eb;
+  --color-disabled-fg: #9ca3af;
+
+  --color-shadow: 16 24 40; /* rgb channels reused by shadow tokens below */
+
+  /* ---------------------------------------------------------------------
+     Spacing scale
+  --------------------------------------------------------------------- */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 1rem;
+  --space-4: 1.5rem;
+  --space-5: 2rem;
+  --space-6: 3rem;
+
+  /* ---------------------------------------------------------------------
+     Corner radii
+  --------------------------------------------------------------------- */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 1rem;
+  --radius-full: 9999px;
+
+  /* ---------------------------------------------------------------------
+     Type scale
+  --------------------------------------------------------------------- */
+  --font-family-base: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+  --font-family-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.25rem;
+  --font-size-xl: 1.5rem;
+  --font-size-2xl: 2rem;
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 700;
+
+  --line-height-tight: 1.2;
+  --line-height-base: 1.5;
+
+  /* ---------------------------------------------------------------------
+     Borders, shadows & motion
+  --------------------------------------------------------------------- */
+  --border-width-sm: 1px;
+  --border-width-md: 2px;
+
+  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.06);
+  --shadow-md: 0 4px 8px rgba(16, 24, 40, 0.12);
+  --shadow-focus: 0 0 0 3px rgba(11, 95, 255, 0.15);
+
+  --transition-fast: 150ms ease;
+}

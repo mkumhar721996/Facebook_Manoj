@@ -1,0 +1,346 @@
+/* ==========================================================================
+   Base
+   ========================================================================== */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-md);
+  line-height: var(--line-height-base);
+}
+
+code,
+.font-mono {
+  font-family: var(--font-family-mono);
+}
+
+a {
+  color: var(--color-primary);
+}
+
+a:hover {
+  color: var(--color-primary-hover);
+}
+
+/* ==========================================================================
+   Text utilities
+   ========================================================================== */
+
+.text-xs {
+  font-size: var(--font-size-xs);
+}
+.text-sm {
+  font-size: var(--font-size-sm);
+}
+.text-md {
+  font-size: var(--font-size-md);
+}
+.text-lg {
+  font-size: var(--font-size-lg);
+}
+.text-xl {
+  font-size: var(--font-size-xl);
+}
+.text-2xl {
+  font-size: var(--font-size-2xl);
+}
+
+.text-bold {
+  font-weight: var(--font-weight-bold);
+}
+.text-medium {
+  font-weight: var(--font-weight-medium);
+}
+
+.text-muted {
+  color: var(--color-fg-muted);
+}
+.text-inverse {
+  color: var(--color-fg-inverse);
+}
+
+/* ==========================================================================
+   Surface / spacing / radius / shadow utilities
+   ========================================================================== */
+
+.surface {
+  background-color: var(--color-bg);
+}
+.surface-subtle {
+  background-color: var(--color-bg-subtle);
+}
+.surface-inverse {
+  background-color: var(--color-bg-inverse);
+  color: var(--color-fg-inverse);
+}
+
+.rounded-sm {
+  border-radius: var(--radius-sm);
+}
+.rounded-md {
+  border-radius: var(--radius-md);
+}
+.rounded-lg {
+  border-radius: var(--radius-lg);
+}
+.rounded-full {
+  border-radius: var(--radius-full);
+}
+
+.shadow-sm {
+  box-shadow: var(--shadow-sm);
+}
+.shadow-md {
+  box-shadow: var(--shadow-md);
+}
+
+.u-gap-1 {
+  gap: var(--space-1);
+}
+.u-gap-2 {
+  gap: var(--space-2);
+}
+.u-gap-3 {
+  gap: var(--space-3);
+}
+.u-gap-4 {
+  gap: var(--space-4);
+}
+
+.u-p-1 {
+  padding: var(--space-1);
+}
+.u-p-2 {
+  padding: var(--space-2);
+}
+.u-p-3 {
+  padding: var(--space-3);
+}
+.u-p-4 {
+  padding: var(--space-4);
+}
+
+.u-stack {
+  display: flex;
+  flex-direction: column;
+}
+.u-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* ==========================================================================
+   Buttons
+   ========================================================================== */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border: var(--border-width-sm) solid transparent;
+  border-radius: var(--radius-md);
+  font-family: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-tight);
+  cursor: pointer;
+  transition: background-color var(--transition-fast),
+    border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.btn:focus-visible {
+  outline: var(--border-width-md) solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: var(--color-primary-fg);
+}
+.btn-primary:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.btn-secondary {
+  background-color: var(--color-bg-subtle);
+  color: var(--color-fg);
+  border-color: var(--color-border);
+}
+.btn-secondary:hover {
+  border-color: var(--color-border-strong);
+}
+
+.btn-outline {
+  background-color: transparent;
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+.btn-outline:hover {
+  background-color: var(--color-bg-subtle);
+}
+
+.btn-danger {
+  background-color: var(--color-danger);
+  color: var(--color-fg-inverse);
+}
+
+.btn:disabled,
+.btn[disabled] {
+  background-color: var(--color-disabled-bg);
+  border-color: var(--color-disabled-bg);
+  color: var(--color-disabled-fg);
+  cursor: not-allowed;
+}
+
+/* ==========================================================================
+   Cards
+   ========================================================================== */
+
+.card {
+  background-color: var(--color-bg);
+  border: var(--border-width-sm) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.card-header {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: var(--border-width-sm) solid var(--color-border);
+  font-weight: var(--font-weight-bold);
+}
+
+.card-body {
+  padding: var(--space-4);
+  color: var(--color-fg-muted);
+}
+
+.card-footer {
+  padding: var(--space-3) var(--space-4);
+  border-top: var(--border-width-sm) solid var(--color-border);
+  background-color: var(--color-bg-subtle);
+}
+
+/* ==========================================================================
+   Chips / badges
+   ========================================================================== */
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-tight);
+}
+
+.chip-neutral {
+  background-color: var(--color-bg-subtle);
+  color: var(--color-fg-muted);
+}
+
+.chip-success {
+  background-color: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+.chip-danger {
+  background-color: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+.chip-warning {
+  background-color: var(--color-warning-bg);
+  color: var(--color-warning);
+}
+
+/* ==========================================================================
+   Form controls
+   ========================================================================== */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-fg);
+}
+
+.helper-text {
+  font-size: var(--font-size-xs);
+  color: var(--color-fg-muted);
+}
+
+.input,
+.textarea,
+.select {
+  padding: var(--space-2) var(--space-3);
+  border: var(--border-width-sm) solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-bg);
+  color: var(--color-fg);
+  font-family: inherit;
+  font-size: var(--font-size-md);
+}
+
+.input:focus,
+.textarea:focus,
+.select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-focus);
+}
+
+.input:disabled,
+.textarea:disabled,
+.select:disabled {
+  background-color: var(--color-disabled-bg);
+  color: var(--color-disabled-fg);
+}
+
+.textarea {
+  resize: vertical;
+  min-height: calc(var(--space-6) * 2);
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.checkbox-row input[type="checkbox"] {
+  accent-color: var(--color-primary);
+}
+
+/* ==========================================================================
+   Swatches (used by the style guide to demo raw tokens)
+   ========================================================================== */
+
+.swatch {
+  width: 100%;
+  height: var(--space-6);
+  border-radius: var(--radius-md);
+  border: var(--border-width-sm) solid var(--color-border);
+}
+
+.swatch-label {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs);
+  color: var(--color-fg-muted);
+}

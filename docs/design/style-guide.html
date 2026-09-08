@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Design System Style Guide</title>
+<link rel="stylesheet" href="tokens.css" />
+<link rel="stylesheet" href="prototype-utils.css" />
+<style>
+  /* Page-only layout scaffolding (no color values; everything else
+     reuses tokens.css and prototype-utils.css). */
+  .page {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: var(--space-6) var(--space-4);
+  }
+  .section {
+    margin-bottom: var(--space-6);
+  }
+  .section-title {
+    margin: 0 0 var(--space-3);
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: var(--space-3);
+  }
+  .grid-2 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: var(--space-4);
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="section">
+    <p class="text-sm text-muted">Design System</p>
+    <h1 class="section-title">Style Guide</h1>
+    <p class="text-muted">
+      A living reference rendering every token in <code>tokens.css</code> and every
+      utility/component class in <code>prototype-utils.css</code>.
+    </p>
+  </header>
+
+  <!-- ==================== Color tokens ==================== -->
+  <section class="section">
+    <h2 class="section-title">Color</h2>
+    <div class="grid">
+      <div class="u-stack u-gap-1">
+        <div class="swatch" style="background-color: var(--color-fg);"></div>
+        <span class="swatch-label">--color-fg</span>
+      </div>
+      <div class="u-stack u-gap-1">
+        <div class="swatch" style="background-color: var(--color-fg-muted);"></div>
+        <span class="swatch-label">--color-fg-muted</span>
+      </div>
+      <div class="u-stack u-gap-1">
+        <div class="swatch" style="background-color: var(--color-fg-inverse);"></div>
+        <span class="swatch-label">--color-fg-inverse</span>
+      </div>
+      <div class="u-stack u-gap-1">
+        <div class="swatch" style="background-color: var(--color-bg);"></div>
+        <span class="swatch-label">--color-bg</span>
+      </div>
+      <div class="u-stack u-gap-1">
+        <div class="swatch" style="background-color: var(--color-bg-subtle);"></div>
+        <span class="swatch-label">--color-bg-subtle</span>
+      </div>
+      <div class="u-stack u-gap-1">
+        <div class="swatch" style="background-color: var(--color-bg-inverse);"></div>
+        <span class="swatch-label">--color-bg-inverse</span>
+      </div>
+      <div class="u-stack u-gap-1">
+        <div class="swatch" style="background-color: var(--color-border);"></div>
+        <span class="swatch-label">--color-border</span>
+      </div>
+      <div class="u-stack u-gap-1">
+        <div class="swatch" style="background-color: var(--color-border-strong);"></div>
+        <span class="swatch-label">--color-border-strong</span>
+      </div>
+      <div class="u-stack u-gap-1">
+        <div class="swatch" style="background-color: var(--color-primary);"></div>
+        <span class="swatch-label">--color-primary</span>
+      </div>
+      <div class="u-stack u-gap-1">
+        <div class="swatch" style="background-color: var(--color-primary-hover);"></div>
+        <span class="swatch-label">--color-primary-hover</span>
+      </div>
+      <div class="u-stack u-gap-1">
+        <div class="swatch" style="background-color: var(--color-primary-fg);"></div>
+        <span class="swatch-label">--color-primary-fg</span>
+      </div>
+      <div class="u-stack u-gap-1">
+        <div class="swatch" style="background-color: var(--color-success);"></div>
+        <span class="swatch-label">--color-success</span>
+      </div>
+      <div class="u-stack u-gap-1">
+        <div class="swatch" style="background-color: var(--color-success-bg);"></div>
+        <span class="swatch-label">--color-success-bg</span>
+      </div>
+      <div class="u-stack u-gap-1">
+        <div class="swatch" style="background-color: var(--color-danger);"></div>
+        <span class="swatch-label">--color-danger</span>
+      </div>
+      <div class="u-stack u-gap-1">
+        <div class="swatch" style="background-color: var(--color-danger-bg);"></div>
+        <span class="swatch-label">--color-danger-bg</span>
+      </div>
+      <div class="u-stack u-gap-1">
+        <div class="swatch" style="background-color: var(--color-warning);"></div>
+        <span class="swatch-label">--color-warning</span>
+      </div>
+      <div class="u-stack u-gap-1">
+        <div class="swatch" style="background-color: var(--color-warning-bg);"></div>
+        <span class="swatch-label">--color-warning-bg</span>
+      </div>
+      <div class="u-stack u-gap-1">
+        <div class="swatch" style="background-color: var(--color-focus-ring);"></div>
+        <span class="swatch-label">--color-focus-ring</span>
+      </div>
+      <div class="u-stack u-gap-1">
+        <div class="swatch" style="background-color: var(--color-disabled-bg);"></div>
+        <span class="swatch-label">--color-disabled-bg</span>
+      </div>
+      <div class="u-stack u-gap-1">
+        <div class="swatch" style="background-color: var(--color-disabled-fg);"></div>
+        <span class="swatch-label">--color-disabled-fg</span>
+      </div>
+    </div>
+    <p class="text-sm text-muted" style="margin-top: var(--space-3);">
+      <span style="color: var(--color-fg); background-color: var(--color-bg); padding: var(--space-1) var(--space-2); border-radius: var(--radius-sm);">
+        --color-fg on --color-bg &mdash; 17.8:1 contrast (WCAG AA/AAA for normal text)
+      </span>
+    </p>
+  </section>
+
+  <!-- ==================== Spacing tokens ==================== -->
+  <section class="section">
+    <h2 class="section-title">Spacing</h2>
+    <div class="u-stack u-gap-2">
+      <div class="u-row u-gap-3">
+        <span class="swatch-label" style="width: 90px;">--space-1</span>
+        <div class="surface-subtle rounded-sm" style="height: var(--space-3); width: var(--space-1);"></div>
+      </div>
+      <div class="u-row u-gap-3">
+        <span class="swatch-label" style="width: 90px;">--space-2</span>
+        <div class="surface-subtle rounded-sm" style="height: var(--space-3); width: var(--space-2);"></div>
+      </div>
+      <div class="u-row u-gap-3">
+        <span class="swatch-label" style="width: 90px;">--space-3</span>
+        <div class="surface-subtle rounded-sm" style="height: var(--space-3); width: var(--space-3);"></div>
+      </div>
+      <div class="u-row u-gap-3">
+        <span class="swatch-label" style="width: 90px;">--space-4</span>
+        <div class="surface-subtle rounded-sm" style="height: var(--space-3); width: var(--space-4);"></div>
+      </div>
+      <div class="u-row u-gap-3">
+        <span class="swatch-label" style="width: 90px;">--space-5</span>
+        <div class="surface-subtle rounded-sm" style="height: var(--space-3); width: var(--space-5);"></div>
+      </div>
+      <div class="u-row u-gap-3">
+        <span class="swatch-label" style="width: 90px;">--space-6</span>
+        <div class="surface-subtle rounded-sm" style="height: var(--space-3); width: var(--space-6);"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== Radius tokens ==================== -->
+  <section class="section">
+    <h2 class="section-title">Corner Radii</h2>
+    <div class="u-row u-gap-4">
+      <div class="u-stack u-gap-1">
+        <div class="surface-subtle rounded-sm" style="width: 80px; height: 80px;"></div>
+        <span class="swatch-label">--radius-sm</span>
+      </div>
+      <div class="u-stack u-gap-1">
+        <div class="surface-subtle rounded-md" style="width: 80px; height: 80px;"></div>
+        <span class="swatch-label">--radius-md</span>
+      </div>
+      <div class="u-stack u-gap-1">
+        <div class="surface-subtle rounded-lg" style="width: 80px; height: 80px;"></div>
+        <span class="swatch-label">--radius-lg</span>
+      </div>
+      <div class="u-stack u-gap-1">
+        <div class="surface-subtle rounded-full" style="width: 80px; height: 80px;"></div>
+        <span class="swatch-label">--radius-full</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== Type scale ==================== -->
+  <section class="section">
+    <h2 class="section-title">Type Scale</h2>
+    <div class="u-stack u-gap-2">
+      <p class="text-xs" style="margin:0;">--font-size-xs &mdash; The quick brown fox jumps over the lazy dog</p>
+      <p class="text-sm" style="margin:0;">--font-size-sm &mdash; The quick brown fox jumps over the lazy dog</p>
+      <p class="text-md" style="margin:0;">--font-size-md &mdash; The quick brown fox jumps over the lazy dog</p>
+      <p class="text-lg" style="margin:0;">--font-size-lg &mdash; The quick brown fox jumps over the lazy dog</p>
+      <p class="text-xl" style="margin:0;">--font-size-xl &mdash; The quick brown fox jumps over the lazy dog</p>
+      <p class="text-2xl" style="margin:0;">--font-size-2xl &mdash; The quick brown fox</p>
+      <p class="font-mono text-sm text-muted" style="margin:0;">--font-family-mono sample: 0123456789</p>
+    </div>
+  </section>
+
+  <!-- ==================== Buttons ==================== -->
+  <section class="section">
+    <h2 class="section-title">Buttons</h2>
+    <div class="u-row u-gap-3">
+      <button class="btn btn-primary">Primary</button>
+      <button class="btn btn-secondary">Secondary</button>
+      <button class="btn btn-outline">Outline</button>
+      <button class="btn btn-danger">Danger</button>
+      <button class="btn btn-primary" disabled>Disabled</button>
+    </div>
+  </section>
+
+  <!-- ==================== Chips ==================== -->
+  <section class="section">
+    <h2 class="section-title">Chips</h2>
+    <div class="u-row u-gap-2">
+      <span class="chip chip-neutral">Neutral</span>
+      <span class="chip chip-success">Success</span>
+      <span class="chip chip-danger">Danger</span>
+      <span class="chip chip-warning">Warning</span>
+    </div>
+  </section>
+
+  <!-- ==================== Cards ==================== -->
+  <section class="section">
+    <h2 class="section-title">Cards</h2>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-header">Card title</div>
+        <div class="card-body">
+          <p style="margin: 0;">
+            Card body copy showing the muted foreground token against the base
+            surface, with rounded corners and a soft shadow.
+          </p>
+        </div>
+        <div class="card-footer u-row u-gap-2">
+          <button class="btn btn-primary">Confirm</button>
+          <button class="btn btn-secondary">Cancel</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">Status</div>
+        <div class="card-body u-stack u-gap-2">
+          <span class="chip chip-success">Operational</span>
+          <p class="text-sm" style="margin: 0;">All systems running normally.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== Form controls ==================== -->
+  <section class="section">
+    <h2 class="section-title">Form Controls</h2>
+    <div class="card">
+      <div class="card-body u-stack u-gap-4">
+        <div class="field">
+          <label class="label" for="name">Name</label>
+          <input class="input" type="text" id="name" placeholder="Ada Lovelace" />
+          <span class="helper-text">Helper text using --color-fg-muted.</span>
+        </div>
+        <div class="field">
+          <label class="label" for="role">Role</label>
+          <select class="select" id="role">
+            <option>Designer</option>
+            <option>Engineer</option>
+            <option>Product Manager</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="label" for="bio">Bio</label>
+          <textarea class="textarea" id="bio" placeholder="A short bio..."></textarea>
+        </div>
+        <div class="field">
+          <label class="label" for="disabled-input">Disabled field</label>
+          <input class="input" type="text" id="disabled-input" value="Read only" disabled />
+        </div>
+        <label class="checkbox-row">
+          <input type="checkbox" checked />
+          <span class="text-sm">Subscribe to updates</span>
+        </label>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== Surfaces & shadows ==================== -->
+  <section class="section">
+    <h2 class="section-title">Surfaces &amp; Shadows</h2>
+    <div class="grid-2">
+      <div class="surface rounded-md shadow-sm u-p-4" style="border: var(--border-width-sm) solid var(--color-border);">
+        <p class="text-sm" style="margin:0;">.surface + .shadow-sm</p>
+      </div>
+      <div class="surface-subtle rounded-md shadow-md u-p-4">
+        <p class="text-sm" style="margin:0;">.surface-subtle + .shadow-md</p>
+      </div>
+      <div class="surface-inverse rounded-md u-p-4">
+        <p class="text-sm" style="margin:0;">.surface-inverse (--color-bg-inverse)</p>
+      </div>
+    </div>
+  </section>
+
+</div>
+</body>
+</html>
