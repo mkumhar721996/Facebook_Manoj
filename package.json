@@ -1,0 +1,10 @@
+{
+  "name": "facebook-manoj-checkout",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Checkout & Payment domain modules",
+  "type": "commonjs",
+  "scripts": {
+    "test": "node --test test/"
+  }
+}
