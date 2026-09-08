@@ -1,0 +1,10 @@
+{
+  "name": "coupon-code-application",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node src/server/index.ts",
+    "test": "node --test \"src/**/*.test.ts\""
+  }
+}
