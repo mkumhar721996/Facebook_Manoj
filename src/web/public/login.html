@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Log in</title>
+<link rel="stylesheet" href="/design/tokens.css" />
+<link rel="stylesheet" href="/design/prototype-utils.css" />
+<style>
+  .page {
+    max-width: 420px;
+    margin: 0 auto;
+    padding: var(--space-6) var(--space-4);
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="card">
+    <div class="card-header">Log in</div>
+    <div class="card-body u-stack u-gap-4">
+      <form id="login-form" novalidate>
+        <div class="u-stack u-gap-4">
+          <div class="field">
+            <label class="label" for="email">Email</label>
+            <input class="input" type="email" id="email" name="email" autocomplete="email" />
+          </div>
+          <div class="field">
+            <label class="label" for="password">Password</label>
+            <input class="input" type="password" id="password" name="password" autocomplete="current-password" />
+          </div>
+          <button class="btn btn-primary" type="submit">Log in</button>
+          <p class="text-sm" data-form-message></p>
+        </div>
+      </form>
+      <p class="text-sm text-muted">New here? <a href="/signup.html">Create an account</a></p>
+    </div>
+  </div>
+</div>
+<script type="module">
+  import { attachLoginForm } from "/src/loginForm.js";
+  attachLoginForm(document.getElementById("login-form"), window.fetch.bind(window));
+</script>
+</body>
+</html>
