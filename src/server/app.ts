@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { handleSignup, handleLogin, handleVerify, handleMe } from "./routes/auth.ts";
+import { resolveWithinBase } from "./staticFileResolver.ts";
 import type { AccountService } from "./services/accountService.ts";
 import type { InMemorySessionStore } from "./session/sessionStore.ts";
 
@@ -23,7 +24,14 @@ const CONTENT_TYPES: Record<string, string> = {
   ".css": "text/css; charset=utf-8",
 };
 
-async function serveStaticFile(res: import("node:http").ServerResponse, filePath: string): Promise<boolean> {
+async function serveStaticFile(
+  res: import("node:http").ServerResponse,
+  baseDir: string,
+  requestedPath: string,
+): Promise<boolean> {
+  const filePath = resolveWithinBase(baseDir, requestedPath);
+  if (!filePath) return false;
+
   try {
     const contents = await readFile(filePath);
     const ext = path.extname(filePath);
@@ -64,25 +72,16 @@ export function createApp(deps: AppDeps): Server {
         const pathname = url.pathname === "/" ? "/signup.html" : url.pathname;
 
         if (pathname.startsWith("/src/")) {
-          const clientMatch = await serveStaticFile(
-            res,
-            path.join(CLIENT_SRC_DIR, pathname.slice("/src/".length)),
-          );
+          const clientMatch = await serveStaticFile(res, CLIENT_SRC_DIR, pathname.slice("/src/".length));
           if (clientMatch) return;
         } else if (pathname.startsWith("/shared/")) {
-          const sharedMatch = await serveStaticFile(
-            res,
-            path.join(SHARED_DIR, pathname.slice("/shared/".length)),
-          );
+          const sharedMatch = await serveStaticFile(res, SHARED_DIR, pathname.slice("/shared/".length));
           if (sharedMatch) return;
         } else if (pathname.startsWith("/design/")) {
-          const designMatch = await serveStaticFile(
-            res,
-            path.join(DESIGN_DIR, pathname.slice("/design/".length)),
-          );
+          const designMatch = await serveStaticFile(res, DESIGN_DIR, pathname.slice("/design/".length));
           if (designMatch) return;
         } else {
-          const publicMatch = await serveStaticFile(res, path.join(PUBLIC_DIR, pathname));
+          const publicMatch = await serveStaticFile(res, PUBLIC_DIR, pathname);
           if (publicMatch) return;
         }
       }
